@@ -1,0 +1,202 @@
+@import './variables.scss';
+@import './reset.scss';
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body, textarea ,input, textarea,button{
+    font: 14px/1.8 'Microsoft YaHei',"华文细黑","Myriad Pro","Myriad", 'Heiti',"Simhei","黑体";
+}
+body{
+    color: $black-light;
+}
+img{border: 0;}
+
+i{font-style: normal}
+
+li{
+    list-style: none;
+}
+:focus {
+    outline: none;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-button{display:none}
+::-webkit-scrollbar-track:vertical{background-color:black}
+::-webkit-scrollbar-track-piece{background:#FFF}
+::-webkit-scrollbar-thumb{background-color: rgba(0,0,0,.3);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background-color:#999}
+::-webkit-scrollbar-corner{background-color:#535353}
+::-webkit-scrollbar-resizer{background-color:#FF6E00}
+
+.clearfix:before,.clearfix:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+textarea{
+    resize: none;
+}
+
+/*通用*/
+.empty{
+    text-align: center;
+    padding: 30px 0;
+    color: $gray-2;
+    &.border{
+        border: 1px solid $gray-3;
+    }
+}
+.disabled{
+  cursor: not-allowed;
+  opacity: .4;
+  .events{
+   pointer-events: none;
+  }
+}
+.color-base{
+    color: $base-color;
+}
+.color-green{
+    color: $green-auto;
+}
+.color-gray{
+    color: $gray-1;
+}
+.color-red{
+    color: $red-auto;
+}
+.color-orange{
+    color: $orange-auto;
+}
+.color-blue{
+    color: $blue-auto;
+}
+.color-gray-light{
+    color: $gray-2
+}
+
+/*通用主题按钮，红色*/
+.btn-send,.btn-common,.el-button.el-button--primary{
+    background: $red-select;
+    border-color: $red-select;
+    color: #fff;
+    &:hover,&:focus{
+        background: $red-select;
+        border-color: $red-select;
+        opacity: .8;
+        color: #fff;
+    }
+    &.is-plain{
+        border-color: $red-select;
+        background: #fff;
+        color: $red-select;
+        &:hover{
+            opacity: .9;
+            background: $red-select;
+            border-color: $red-select;
+            color: #fff;
+        }
+        &:focus{
+            border-color: $red-select;
+            background: #fff;
+            color: $red-select;
+        }
+    }
+}
+.table-filter{
+    
+    &:after{
+        content: "";
+        display: block;
+        clear:both;
+    }
+    > .el-button{
+        margin-bottom: 10px;
+    }
+}
+.table-container{
+    .table-control-head{
+        margin-bottom: 10px;
+        &:after{
+            content: "";
+            display: block;
+            clear: both;
+        }
+    }
+    .table-control{
+        border:1px solid $gray-3;
+        border-top: 0;
+        padding: 10px;
+        .select-tip{
+            margin-right: 10px;
+            font-size: 12px;
+        }
+    }
+    .table{
+        border: 1px solid $gray-3;
+        border-bottom: 0;
+        z-index: 10;
+        &.el-table--border{
+            border-right: 0;
+        }
+        thead{
+            th{
+                background: $gray-4;
+                color: $black-light;
+                padding: 10px 4px;
+                
+                .cell{
+                    // width: auto;
+                    .caret-wrapper{
+                        top: -6px;
+                        position: absolute;
+                        right: -8px;
+                    }
+                }
+            }
+        }
+        th,td{
+            border-color: $gray-3!important;
+            text-align: center;
+            &.is-left{
+                text-align: left;
+            }
+            &.is-center{
+                text-align: center;
+            }
+            &.is-right{
+                text-align: right;
+            }
+        }
+        
+        &:after,&:before{
+            background-color: $gray-3!important;
+        }
+        .cell{
+            line-height: 20px;
+            // white-space: nowrap;
+            // text-overflow: ellipsis;
+            // overflow: hidden;
+            // word-break: break-word;
+
+            .el-button{
+                padding-top: 3px;
+                padding-bottom: 3px;
+            }
+        }
+        a{
+            color: $blue-auto;
+            text-decoration: none;
+            &:hover{
+                text-decoration: underline;
+            }
+        }
+        .el-table__body tr.current-row>td{
+            background-color: #fff2f8;
+        }
+    }
+    
+}
