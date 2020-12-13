@@ -10,7 +10,7 @@ export default function AdminReqLog(): any {
         const reportTime = Date.now() - startTime;
         const { url } = ctx;
         // 该接口不做记录/admin/sys/log/page
-        if (url.startsWith('/api') && !url.startsWith('/api/system/reqlog')) {
+        if (url.startsWith('/api') && !url.startsWith('/api/system/reqlog') && ctx.req.method!=='GET') {
             ctx.service.system.reqLog.save(url.split('?')[0],
                 ctx.req.method === 'GET' ? ctx.request.query : ctx.request.body, ctx.status, reportTime, ctx.req.method, ctx.session && ctx.session.user ? ctx.session.user.id : null);
         }

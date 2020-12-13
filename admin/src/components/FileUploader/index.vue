@@ -98,13 +98,13 @@ export default{
 		},
 
         maxSize: {//上传文件大小
-			type: String,
-			default:'500mb'
+			type: Number,
+			default: 50 * 1024 * 1024
 		},
 
         files: {
 			type: Array,
-			default:[]
+			default(){return []}
 		},
 
 		multiple:{
@@ -151,7 +151,7 @@ export default{
             eventTarget: null,
             singleLoading: {
                 loading:false,
-                percent:'',
+                percent: 0,
             },
 		}
 	},
@@ -191,7 +191,6 @@ export default{
                 let file = event.target.files[0];
                 if(!file) return;              
                  
-                this.maxSize = this.getMaxSize(this.maxSize);
                 if (file.size > this.maxSize) {
                     return this.$message.error(i18n.t('common.uploadFileTipsPre') + this.maxSize +"!");
                 }                
@@ -229,21 +228,6 @@ export default{
                 return eval("/\.(" + typeFilter + ")$/i");
             },
 
-            getMaxSize(limit){
-                let limitReg1= /^([\d|\.]+)(mb|m)/i;
-                let limitReg2= /^([\d|\.]+)(kb|k)/i;
-
-                let maxSize;
-
-                if (limitReg1.test(limit)){
-                    maxSize = limit.match(limitReg1)[1]* 1024 *1024
-                }
-                if (limitReg2.test(limit)){
-                    maxSize = limit.match(limitReg2)[1]* 1024
-                }
-                return maxSize;
-            },
-
             //多上传文件操作
             handleFileChange(file, fileList){
                 if(!fileList.length){
@@ -254,8 +238,6 @@ export default{
                 }
 
                 this.fileInnerList = fileList;//给到中间层的this.fileInnerList
-
-                this.maxSize = this.getMaxSize(this.maxSize);
 
                 if (file.size > this.maxSize) {
                     let index = fileList.map(item=>item.uid).indexOf(file.uid);
@@ -314,10 +296,10 @@ export default{
             upLoadFile(formData,file,fileList){
                 let self = this;
                 file['loading'] = true;
-                file['percent'] = '';
+                file['percent'] = 0;
 
                 this.singleLoading['loading'] = true;
-                this.singleLoading['percent'] = '';
+                this.singleLoading['percent'] = 0;
                 let singleLoading = this.singleLoading;
 
                 let progressCallback = (currFilePercent)=>{
@@ -338,8 +320,8 @@ export default{
                     }
 
                     //删除时所需，给上id标记
-                    file.id = res.result[0].id;
-                    file.url = res.reuslt[0].url;
+                    file.id = res.result.id;
+                    file.url = res.result.url;
                     //单个文件上传
                     if(this.single){
                         this.addTitle();

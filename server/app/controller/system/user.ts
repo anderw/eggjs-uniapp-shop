@@ -44,7 +44,7 @@ export default class UserController extends Controller {
         }
     }
     
-    @bp.post('/update')
+    @bp.post('/update',requireLogin)
     public async update(){
         const { ctx } = this;
         let params = ctx.request.body;
@@ -55,7 +55,7 @@ export default class UserController extends Controller {
             ctx.fail(ret.code, ret.message)
         }
     }
-    @bp.del('/:id')
+    @bp.del('/:id',requireLogin)
     public async remove(){
         const { ctx } = this;
         let ret = await ctx.service.system.user.remove(ctx.params.id);

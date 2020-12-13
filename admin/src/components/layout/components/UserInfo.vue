@@ -23,7 +23,7 @@
                 </el-row>
             </div>
             <div class="foot">
-                <el-button type="text" icon="fa fa-gear" class="set" @click="routeTo('/system/setting')">设置</el-button>
+                <el-button type="text" icon="fa fa-gear" class="set" @click="routeTo('/setting/person')">设置</el-button>
                 <el-button type="text" icon="fa fa-sign-out" class="exit" @click="logout()">退出登录</el-button>
             </div>
         </div>      

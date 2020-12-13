@@ -7,11 +7,11 @@ module.exports = app => {
         city: { type: STRING }, // 市
         district: { type: STRING,  }, // 区
         township: STRING, // 街道
-        place:STRING, //详细地址
+        place: STRING, //详细地址
         linkMan: STRING,
         linkPhone: STRING,
         isDefault: BOOLEAN,
-        longitude: DOUBLE, // 用户性别：1男性, 2女性, 0未知
+        longitude: DOUBLE, // 
         latitude: DOUBLE,
         userId: INTEGER,
         // session_key: STRING, // 微信session_key

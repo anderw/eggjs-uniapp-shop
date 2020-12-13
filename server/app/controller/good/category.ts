@@ -16,14 +16,14 @@ export default class GoodCategoryController extends Controller {
     @bp.get('/list')
     public async list() {
         const { ctx } = this;
-        let list = await ctx.service.good.category.select()
+        let list = await ctx.service.good.category.select(ctx.query)
         ctx.success(list)
     }
     /** 不分页列表,树形，用于类型选择框 */
     @bp.get('/tree')
     public async tree() {
         const { ctx } = this;
-        let list = await ctx.service.good.category.select();
+        let list = await ctx.service.good.category.select(ctx.query);
         var getChildren = (parentId)=>{
             var results = list.filter(a=>a.parentId==parentId);
             for(let i=0;i<results.length;i++){

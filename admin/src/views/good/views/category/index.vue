@@ -58,22 +58,29 @@ export default {
         }
     },
     computed:{
-        ...mapGetters(['baseUrl'])
+        ...mapGetters(['baseUrl','user'])
     },
     created() {
         
     },
     methods: {
         edit(data) {
+            if(data){
+                data.images = [data.image]
+            }//else{
+            //     data = {images:[]}
+            // }
             var schema = [
                 {label:'名称',prop: "name"},
                 {label:'描述',prop: "description"},
                 {label:'上级分类',prop: "parentId",formtype:'select',remote:true,remoteMethod:goodApi.category.select,valueKey:'id',labelKey:'name'},
-                // {label:'图片',prop: "imageId",formtype: 'file'},
+                {label:'图片',prop: "images",formtype: 'file',default:[]},
+                {label:'描述',prop: "imageId",hidden: true},
+                {label:'描述',prop: "merchantId",hidden: true,default: this.user.merchant.id},
                 {label:'状态',prop: "status",formtype:'radio',options:[{label:'启用',value:1},{label:'禁用',value:2}],default: 1},
             ]
             FormDialog.show({
-                title: data ? '编辑商家' : '添加商家',
+                title: data && data.id ? '编辑分类' : '添加分类',
                 schema: schema,
                 rules:{
                     name:[
@@ -82,6 +89,15 @@ export default {
                 },
                 api:{save: goodApi.category.save,update: goodApi.category.save},
                 form: data,
+                beforeSubmit(form){
+                    if(form.images && form.images.length){
+                        form.imageId = form.images[0].id
+                        delete form.images;
+                    }else{
+                        delete form.imageId
+                    }
+                    return form;
+                },
                 submit: this.submit
             })
         },

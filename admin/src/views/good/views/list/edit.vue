@@ -146,7 +146,7 @@ export default {
             console.log(file);
             var fileList = this.$refs.upload.uploadFiles
             for(let i=0;i<fileList.length;i++){
-                if(fileList[i].uid=file.uid){
+                if(fileList[i].uid==file.uid){
                     fileList.splice(i,1);break;
                 }
             }

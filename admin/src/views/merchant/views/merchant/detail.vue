@@ -71,6 +71,7 @@ export default {
                 {title:'appSecret',value: this.data.appSecret},
                 {title:'mchId',value: this.data.mchId},
                 {title:'mchKey',value: this.data.mchKey},
+                {title:'logo',value: this.data.logo && `<img src="${this.$store.getters.baseUrl}${this.data.logo.url}" style="max-width:100%">`},
                 {title:'状态',value:status},
             ]
         },

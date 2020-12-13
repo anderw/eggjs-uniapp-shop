@@ -14,6 +14,9 @@ export default class CategoryService extends Service {
         let list = await this.app.model.GoodCategory.findAndCountAll({
             limit: +pageSize,
             offset: pageSize * (page-1),
+            order:[
+                ['created_at','DESC']
+            ],
             include:[
                 {model: this.app.model.GoodCategory,as: 'parent'},
                 {model: this.app.model.SystemFile,as: 'image'},
@@ -25,8 +28,17 @@ export default class CategoryService extends Service {
     * 列表
     * @param params - 列表查询参数
     */
-    public async select() {
-        let list = await this.app.model.GoodCategory.findAll()
+    public async select(options) {
+        var where = {};
+        for(const i in options){
+            options[i] && (where[i] = options[i])
+        }
+        let list = await this.app.model.GoodCategory.findAll({
+            where: where,
+            include:[
+                {model: this.app.model.SystemFile,as: 'image'},
+            ]
+        })
         return list;
     }
     

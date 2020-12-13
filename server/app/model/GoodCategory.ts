@@ -7,7 +7,7 @@ module.exports = app => {
         description: { type: TEXT }, // 商品描述
         imageId: INTEGER, // 分类图标
         parentId: { type: INTEGER}, // 上级Id
-        mechantId: INTEGER, // 关联商家id
+        merchantId: INTEGER, // 关联商家id
         status: { type: INTEGER, defaultValue: 1 }, //  状态：  1:可用 2：禁用
     },{freezeTableName: true});
     // 表关联的字段

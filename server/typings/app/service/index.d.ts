@@ -10,6 +10,7 @@ import ExportGoodCategory from '../../../app/service/good/category';
 import ExportGoodHome from '../../../app/service/good/home';
 import ExportGoodOrder from '../../../app/service/good/order';
 import ExportLogMessage from '../../../app/service/log/message';
+import ExportMemberAddress from '../../../app/service/member/address';
 import ExportMerchantIndex from '../../../app/service/merchant/index';
 import ExportSystemFile from '../../../app/service/system/file';
 import ExportSystemMenu from '../../../app/service/system/menu';
@@ -27,6 +28,9 @@ declare module 'egg' {
     }
     log: {
       message: AutoInstanceType<typeof ExportLogMessage>;
+    }
+    member: {
+      address: AutoInstanceType<typeof ExportMemberAddress>;
     }
     merchant: {
       index: AutoInstanceType<typeof ExportMerchantIndex>;

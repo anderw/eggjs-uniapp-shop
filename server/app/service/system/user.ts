@@ -61,13 +61,13 @@ export default class UserService extends Service {
     /**更新 */
     public async update(options: any) {
         const { ctx } = this
-        let results = { code: 400, message: "失败", }
+        let results = { code: 500, message: "失败", }
         await ctx.model.SystemUser.update(options,{
-            where:{id: options.id}
+            where:{id: ctx.session.user.id}
         }).then(() => {
             results = { code: 0, message: "更新成功", }
         }).catch(err => {
-            results = { code: 400, message: err, }
+            results = { code: 500, message: err, }
         })
         return results
     }
@@ -130,17 +130,22 @@ export default class UserService extends Service {
         let userInfo:any = {};
         await ctx.model.SystemUser.findOne({
             where: options,
-            include: [{
-                model: this.app.model.SystemRole,
-                as: 'role',//这里的 as需要与之前定义的as名字相同
-            }]
+            include: [
+                {model: this.app.model.SystemRole,as: 'role'},
+                {model: this.app.model.SystemFile,as: 'avatar'}
+            ]
         }).then(async res => {
             var permissions = res.dataValues.role && await ctx.model.SystemRolePermission.findAll({where: {roleId: res.dataValues.role.dataValues.id}}) ||[];
             res.dataValues.permissions = permissions||[]
             userInfo = res
         })
         if(userInfo.type==2){//如果是商家，则将商家信息一并查询
-            const merchantModel = await ctx.model.Merchant.findOne({where:{userId:userInfo.id}});
+            const merchantModel = await ctx.model.Merchant.findOne({
+                where:{userId:userInfo.id},
+                include:[
+                    {model: this.app.model.SystemFile,as: 'logo'}
+                ]
+            });
             userInfo.setDataValue("merchant",merchantModel)
         }
         return userInfo

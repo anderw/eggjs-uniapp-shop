@@ -4,7 +4,7 @@
             <!-- 右侧 刷新按钮 -->
             <el-button type="text" class="btn-refresh" icon="el-icon-refresh" @click="refresh">刷新</el-button>
             <!-- 左侧 页面模块标题 -->
-            <div class="sub-header-title">管理菜单1</div>
+            <div class="sub-header-title">管理菜单</div>
         </el-header>
         <el-main class="center-main">
         <div class="table-filter">

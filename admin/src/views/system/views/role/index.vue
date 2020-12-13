@@ -44,6 +44,7 @@ export default {
             listApi:systemApi.role.list,
             columnItems:[
                 {prop:'name',label:'角色名称'},
+                {prop:'describe',label:'描述'},
                 {prop:'status',label:'状态'},
                 {prop:'createdAt',label:'创建时间'},
                 {prop:'action',label:'操作',width:260},
@@ -60,6 +61,7 @@ export default {
         edit(data) {
             var schema = [
                 {label:'角色名称',prop: "name"},
+                {label:'描述',prop: "describe"},
             ]
             FormDialog.show({
                 title: data ? '编辑角色' : '添加角色',

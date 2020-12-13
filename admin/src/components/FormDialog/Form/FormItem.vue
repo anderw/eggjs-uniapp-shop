@@ -35,7 +35,7 @@
 		</template>
 		
 		<template v-if="item.formtype=='file'">
-			<FileUploader :files="form[item.prop]" :single="true"></FileUploader>
+			<FileUploader :files.sync="form[item.prop]" :single="true"></FileUploader>
 		</template>
 		
 		<el-tooltip class="item" effect="dark" placement="right"  v-if="item.tooltip">

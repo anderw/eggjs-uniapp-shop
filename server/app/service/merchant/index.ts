@@ -13,7 +13,10 @@ export default class MerchantService extends Service {
         let {page = 1, pageSize = this.config.pageSize} = options
         let list = await this.app.model.Merchant.findAndCountAll({
             limit: +pageSize,
-            offset: pageSize * (page-1)
+            offset: pageSize * (page-1),
+            include:[
+                {model: this.app.model.SystemFile,as:'logo'}
+            ]
         })
         return list;
     }
@@ -41,7 +44,23 @@ export default class MerchantService extends Service {
 
         return results
     }
+    /**
+   * 保存
+   * @param options - 参数
+   */
+    public async update(options: any) {
+    const { ctx } = this
+    let results = { code: 400, message: "失败", }
+    await ctx.model.Merchant.update(options,{
+        where:{id: options.id}
+    }).then(() => {
+        results = { code: 0, message: "添加成功", }
+    }).catch(err => {
+        results = { code: 400, message: err, }
+    })
 
+    return results
+}
     public async detail(id){
         // const { ctx } = this
         let data = await this.app.model.Merchant.findOne({where: {id}})

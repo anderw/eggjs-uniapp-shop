@@ -16,12 +16,17 @@ let _constMap = (() => {
     let obj = {
         UserStatus:[
             {value: 1,label:'可用'},
-            {value: 2,label:'禁用'},
+            {value: 2,label:'禁用'}
         ],
         UserSex:[
             {value: 1,label:'男'},
-            {value: 2,label:'女'},
+            {value: 2,label:'女'}
         ],
+        UserType:[
+            {value: 1,label:'管理员'},
+            {value: 2,label:'商家'},
+            {value: 3,label:'用户'},
+        ]
 	};
 	
     for (let key in obj) {

@@ -1,5 +1,6 @@
 import { Controller } from 'egg';
 import { bp } from 'egg-blueprint'
+const requireLogin = require('../../middleware/requireLogin')()
 /**
 * @Controller 角色
 */
@@ -26,6 +27,18 @@ export default class MerchantController extends Controller {
         const { ctx } = this;
         let params = ctx.request.body;
         let ret = await ctx.service.merchant.index.save(params);
+        if(ret.code==0){
+            ctx.success()
+        }else{
+            ctx.fail(ret.code, ret.message)
+        }
+    }
+    //用户用户修改商家信息
+    @bp.post('/update',requireLogin)
+    public async update(){
+        const { ctx } = this;
+        let params = ctx.request.body;
+        let ret = await ctx.service.merchant.index.update(params);
         if(ret.code==0){
             ctx.success()
         }else{
