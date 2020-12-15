@@ -9,6 +9,7 @@ module.exports = app => {
         salePrice: { type: DECIMAL}, // 售卖价
         marketPrice: { type: DECIMAL}, // 市场价
         stock: INTEGER,  // 库存
+        sales: {type: INTEGER, defaultValue: 0}, //销量
         goodId: INTEGER, // 关联商品id
         mechantId: INTEGER, // 关联商家id
     },{freezeTableName: true});

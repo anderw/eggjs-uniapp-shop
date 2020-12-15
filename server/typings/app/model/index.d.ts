@@ -19,6 +19,7 @@ import ExportSystemRoleMenu from '../../../app/model/SystemRoleMenu';
 import ExportSystemRolePermission from '../../../app/model/SystemRolePermission';
 import ExportSystemUser from '../../../app/model/SystemUser';
 import ExportUserAddress from '../../../app/model/UserAddress';
+import ExportUserFav from '../../../app/model/UserFav';
 
 declare module 'egg' {
   interface IModel {
@@ -39,5 +40,6 @@ declare module 'egg' {
     SystemRolePermission: ReturnType<typeof ExportSystemRolePermission>;
     SystemUser: ReturnType<typeof ExportSystemUser>;
     UserAddress: ReturnType<typeof ExportUserAddress>;
+    UserFav: ReturnType<typeof ExportUserFav>;
   }
 }

@@ -2,10 +2,10 @@
 	<view class="container">
 		<view class="carousel">
 			<swiper indicator-dots circular=true duration="400">
-				<swiper-item class="swiper-item" v-for="(item,index) in imgList" :key="index">
+				<swiper-item class="swiper-item" v-for="(item,index) in product.images" :key="index">
 					<view class="image-wrapper">
 						<image
-							:src="item.src" 
+							:src="baseUrl + item.url" 
 							class="loaded" 
 							mode="aspectFill"
 						></image>
@@ -15,17 +15,17 @@
 		</view>
 		
 		<view class="introduce-section">
-			<text class="title">恒源祥2019春季长袖白色t恤 新款春装</text>
+			<text class="title">{{product.name}}</text>
 			<view class="price-box">
 				<text class="price-tip">¥</text>
-				<text class="price">341.6</text>
-				<text class="m-price">¥488</text>
-				<text class="coupon-tip">7折</text>
+				<text class="price">{{currentSpec.salePrice}}</text>
+				<text class="m-price">¥{{currentSpec.marketPrice}}</text>
+				<text class="coupon-tip">{{(10*currentSpec.salePrice/currentSpec.marketPrice).toFixed(1)}}折</text>
 			</view>
 			<view class="bot-row">
-				<text>销量: 108</text>
-				<text>库存: 4690</text>
-				<text>浏览量: 768</text>
+				<text>销量: {{product.sales}}</text>
+				<text>库存: {{stock}}</text>
+				<!-- <text>浏览量: 768</text> -->
 			</view>
 		</view>
 		
@@ -48,17 +48,17 @@
 			<view class="c-row b-b" @click="toggleSpec">
 				<text class="tit">购买类型</text>
 				<view class="con">
-					<text class="selected-text" v-for="(sItem, sIndex) in specSelected" :key="sIndex">
-						{{sItem.name}}
+					<text class="selected-text" >
+						{{currentSpec.name}}
 					</text>
 				</view>
 				<text class="yticon icon-you"></text>
 			</view>
-			<view class="c-row b-b">
+			<!-- <view class="c-row b-b">
 				<text class="tit">优惠券</text>
 				<text class="con t-r red">领取优惠券</text>
 				<text class="yticon icon-you"></text>
-			</view>
+			</view> -->
 			<view class="c-row b-b">
 				<text class="tit">促销活动</text>
 				<view class="con-list">
@@ -78,7 +78,7 @@
 		</view>
 		
 		<!-- 评价 -->
-		<view class="eva-section">
+		<!-- <view class="eva-section">
 			<view class="e-header">
 				<text class="tit">评价</text>
 				<text>(86)</text>
@@ -96,13 +96,13 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 		
 		<view class="detail-desc">
 			<view class="d-header">
 				<text>图文详情</text>
 			</view>
-			<rich-text :nodes="desc"></rich-text>
+			<rich-text :nodes="product.content"></rich-text>
 		</view>
 		
 		<!-- 底部操作菜单 -->
@@ -138,32 +138,43 @@
 			<view class="mask"></view>
 			<view class="layer attr-content" @click.stop="stopPrevent">
 				<view class="a-t">
-					<image src="https://gd3.alicdn.com/imgextra/i3/0/O1CN01IiyFQI1UGShoFKt1O_!!0-item_pic.jpg_400x400.jpg"></image>
+					<image :src="baseUrl + product.thumbnailImage.url" v-if="product.thumbnailImage"></image>
 					<view class="right">
-						<text class="price">¥328.00</text>
-						<text class="stock">库存：188件</text>
+						<text class="price">¥{{currentSpec.salePrice}}</text>
+						<text class="stock">库存：{{currentSpec.stock}}件</text>
 						<view class="selected">
-							已选：
-							<text class="selected-text" v-for="(sItem, sIndex) in specSelected" :key="sIndex">
-								{{sItem.name}}
-							</text>
+							已选：{{currentSpec.name}}
 						</view>
 					</view>
 				</view>
-				<view v-for="(item,index) in specList" :key="index" class="attr-list">
-					<text>{{item.name}}</text>
+				<view class="attr-list">
+					<text>规格</text>
 					<view class="item-list">
 						<text 
-							v-for="(childItem, childIndex) in specChildList" 
-							v-if="childItem.pid === item.id"
+							v-for="(item, childIndex) in product.specs" 
 							:key="childIndex" class="tit"
-							:class="{selected: childItem.selected}"
-							@click="selectSpec(childIndex, childItem.pid)"
+							:class="{selected: currentSpec.id==item.id}"
+							@click="selectSpec(item)"
 						>
-							{{childItem.name}}
+							{{item.name}}
 						</text>
 					</view>
 				</view>
+                <view class="attr-list">
+                	<text>数量</text>
+                	<view class="item-list">
+                		<uni-number-box
+                			class="step"
+                			:min="1" 
+                			:max="currentSpec.stock"
+                			:value="currentSpec.count>currentSpec.stock?currentSpec.stock:currentSpec.count"
+                			:isMax="currentSpec.count>=currentSpec.stock?true:false"
+                			:isMin="currentSpec.count===1"
+                			style="position: static;"
+                			@eventChange="numberChange"
+                		></uni-number-box>
+                	</view>
+                </view>
 				<button class="btn" @click="toggleSpec">完成</button>
 			</view>
 		</view>
@@ -177,119 +188,48 @@
 </template>
 
 <script>
+    import {mapState} from 'vuex';
 	import share from '@/components/share';
+    import uniNumberBox from '@/components/uni-number-box.vue'
 	export default{
 		components: {
-			share
+			share,uniNumberBox
 		},
+        computed: {
+        	...mapState(['hasLogin','user','baseUrl']),
+            stock(){
+                if(this.product.specs){
+                    return this.product.specs.reduce((next,cur)=>next + cur.stock,0)
+                }
+                return 0
+            }
+        },
 		data() {
 			return {
 				specClass: 'none',
-				specSelected:[],
-				
+				product:{},
 				favorite: true,
 				shareList: [],
-				imgList: [
-					{
-						src: 'https://gd3.alicdn.com/imgextra/i3/0/O1CN01IiyFQI1UGShoFKt1O_!!0-item_pic.jpg_400x400.jpg'
-					},
-					{
-						src: 'https://gd3.alicdn.com/imgextra/i3/TB1RPFPPFXXXXcNXpXXXXXXXXXX_!!0-item_pic.jpg_400x400.jpg'
-					},
-					{
-						src: 'https://gd2.alicdn.com/imgextra/i2/38832490/O1CN01IYq7gu1UGShvbEFnd_!!38832490.jpg_400x400.jpg'
-					}
-				],
-				desc: `
-					<div style="width:100%">
-						<img style="width:100%;display:block;" src="https://gd3.alicdn.com/imgextra/i4/479184430/O1CN01nCpuLc1iaz4bcSN17_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd2.alicdn.com/imgextra/i2/479184430/O1CN01gwbN931iaz4TzqzmG_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd3.alicdn.com/imgextra/i3/479184430/O1CN018wVjQh1iaz4aupv1A_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd4.alicdn.com/imgextra/i4/479184430/O1CN01tWg4Us1iaz4auqelt_!!479184430.jpg_400x400.jpg" />
-						<img style="width:100%;display:block;" src="https://gd1.alicdn.com/imgextra/i1/479184430/O1CN01Tnm1rU1iaz4aVKcwP_!!479184430.jpg_400x400.jpg" />
-					</div>
-				`,
-				specList: [
-					{
-						id: 1,
-						name: '尺寸',
-					},
-					{	
-						id: 2,
-						name: '颜色',
-					},
-				],
-				specChildList: [
-					{
-						id: 1,
-						pid: 1,
-						name: 'XS',
-					},
-					{
-						id: 2,
-						pid: 1,
-						name: 'S',
-					},
-					{
-						id: 3,
-						pid: 1,
-						name: 'M',
-					},
-					{
-						id: 4,
-						pid: 1,
-						name: 'L',
-					},
-					{
-						id: 5,
-						pid: 1,
-						name: 'XL',
-					},
-					{
-						id: 6,
-						pid: 1,
-						name: 'XXL',
-					},
-					{
-						id: 7,
-						pid: 2,
-						name: '白色',
-					},
-					{
-						id: 8,
-						pid: 2,
-						name: '珊瑚粉',
-					},
-					{
-						id: 9,
-						pid: 2,
-						name: '草木绿',
-					},
-				]
+                currentSpec:{},
 			};
 		},
 		async onLoad(options){
 			
 			//接收传值,id里面放的是标题，因为测试数据并没写id 
 			let id = options.id;
-			if(id){
-				this.$api.msg(`点击了${id}`);
-			}
-			
-			
-			//规格 默认选中第一条
-			this.specList.forEach(item=>{
-				for(let cItem of this.specChildList){
-					if(cItem.pid === item.id){
-						this.$set(cItem, 'selected', true);
-						this.specSelected.push(cItem);
-						break; //forEach不能使用break
-					}
-				}
-			})
+			id && this.loadData(id)
 			this.shareList = await this.$api.json('shareList');
 		},
 		methods:{
+            //获取商品详情
+            loadData(id){
+                this.$api.good.detail(id).then(res=>{
+                    res.result.specs = res.result.specs.map(item=>{item.count=1;return item})
+                    this.product = res.result;
+                    this.currentSpec = res.result.specs[0];
+                    this.visitHis();
+                })
+            },
 			//规格弹窗开关
 			toggleSpec() {
 				if(this.specClass === 'show'){
@@ -302,29 +242,30 @@
 				}
 			},
 			//选择规格
-			selectSpec(index, pid){
-				let list = this.specChildList;
-				list.forEach(item=>{
-					if(item.pid === pid){
-						this.$set(item, 'selected', false);
-					}
-				})
-
-				this.$set(list[index], 'selected', true);
-				//存储已选择
-				/**
-				 * 修复选择规格存储错误
-				 * 将这几行代码替换即可
-				 * 选择的规格存放在specSelected中
-				 */
-				this.specSelected = []; 
-				list.forEach(item=>{ 
-					if(item.selected === true){ 
-						this.specSelected.push(item); 
-					} 
-				})
+			selectSpec(data){
+                this.currentSpec = data;
 				
 			},
+            //记录浏览历史
+            visitHis(){
+                var his = uni.getStorageSync('visitedHistory') || [];
+                var cur = his.find(a=>a.id==this.product.id);
+                if(!cur){
+                    his.unshift({id: this.product.id, pic: this.baseUrl + this.product.thumbnailImage.url})
+                }else{
+                    for(let i=0;i<his.length;i++){
+                       if(his[i].id==this.product.id){
+                           var a = his[i];
+                           his.splice(i,1);
+                           his.unshift(a);break;
+                       }
+                    }
+                }
+                uni.setStorage({//缓存
+                    key: 'visitedHistory',  
+                    data: his  
+                }) 
+            },
 			//分享
 			share(){
 				this.$refs.share.toggleMask();	
@@ -332,11 +273,30 @@
 			//收藏
 			toFavorite(){
 				this.favorite = !this.favorite;
+                this.$api.user.fav.save({goodId: this.product.id}).then(res=>{
+                    
+                })
 			},
+            //数量
+            numberChange(data){
+            	this.currentSpec.count = data.number;
+            },
 			buy(){
-				uni.navigateTo({
-					url: `/pages/order/createOrder`
-				})
+                const goodsData=[{
+                    id: this.product.id,
+                    name: this.product.name,
+                    qty: this.currentSpec.count,
+                    salePrice: this.currentSpec.salePrice,
+                    marketPrice: this.currentSpec.marketPrice,
+                    goodImageUrl: this.baseUrl + this.product.thumbnailImage.url,
+                    goodSpecId: this.currentSpec.id,
+                    goodSpecName: this.currentSpec.name,
+                    goodCategoryId: this.product.categoryId,
+                    goodCategoryName: this.product.category.name
+                }];
+                uni.navigateTo({
+                    url: `/pages/order/createOrder?data=${JSON.stringify(goodsData)}`
+                })
 			},
 			stopPrevent(){}
 		},

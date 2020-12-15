@@ -10,8 +10,8 @@
 			<view class="nav-item" :class="{current: filterIndex === 2}" @click="tabClick(2)">
 				<text>价格</text>
 				<view class="p-box">
-					<text :class="{active: priceOrder === 1 && filterIndex === 2}" class="yticon icon-shang"></text>
-					<text :class="{active: priceOrder === 2 && filterIndex === 2}" class="yticon icon-shang xia"></text>
+					<text :class="{active: listQuery.priceOrder === 1 && filterIndex === 2}" class="yticon icon-shang"></text>
+					<text :class="{active: listQuery.priceOrder === 2 && filterIndex === 2}" class="yticon icon-shang xia"></text>
 				</view>
 			</view>
 			<text class="cate-item yticon icon-fenlei1" @click="toggleCateMask('show')"></text>
@@ -23,11 +23,11 @@
 				@click="navToDetailPage(item)"
 			>
 				<view class="image-wrapper">
-					<image :src="item.image" mode="aspectFill"></image>
+					<image :src="item.thumbnailImage && (baseUrl + item.thumbnailImage.url) || '/static/errorImage.jpg'" mode="aspectFill"></image>
 				</view>
-				<text class="title clamp">{{item.title}}</text>
+				<text class="title clamp">{{item.name}}</text>
 				<view class="price-box">
-					<text class="price">{{item.price}}</text>
+					<text class="price">{{getPrice(item.apecs)}}</text>
 					<text>已售 {{item.sales}}</text>
 				</view>
 			</view>
@@ -40,9 +40,9 @@
 					<view v-for="item in cateList" :key="item.id">
 						<view class="cate-item b-b two">{{item.name}}</view>
 						<view 
-							v-for="tItem in item.child" :key="tItem.id" 
+							v-for="tItem in item.children" :key="tItem.id" 
 							class="cate-item b-b" 
-							:class="{active: tItem.id==cateId}"
+							:class="{active: tItem.id==listQuery.categoryId}"
 							@click="changeCate(tItem)">
 							{{tItem.name}}
 						</view>
@@ -55,7 +55,9 @@
 </template>
 
 <script>
+    import {mapState} from 'vuex'
 	import uniLoadMore from '@/components/uni-load-more/uni-load-more.vue';
+    import * as Utils from '@/common/utils/index.js'
 	export default {
 		components: {
 			uniLoadMore	
@@ -67,18 +69,27 @@
 				headerTop:"0px",
 				loadingType: 'more', //加载更多状态
 				filterIndex: 0, 
-				cateId: 0, //已选三级分类id
-				priceOrder: 0, //1 价格从低到高 2价格从高到低
+                listQuery: {
+                    page: 0,
+                    pageSize: 10,
+                    categoryId: '',
+                    priceOrder: 0, //1 价格从低到高 2价格从高到低
+                    salesOrder: 0 //1 销量高到低
+                },
 				cateList: [],
 				goodsList: []
 			};
 		},
+        computed: {
+        	...mapState(['hasLogin','user','baseUrl']),
+            
+        },
 		
 		onLoad(options){
 			// #ifdef H5
 			this.headerTop = document.getElementsByTagName('uni-page-head')[0].offsetHeight+'px';
 			// #endif
-			this.cateId = options.tid;
+			this.listQuery.categoryId = options.tid;
 			this.loadCateList(options.fid,options.sid);
 			this.loadData();
 		},
@@ -101,14 +112,17 @@
 		methods: {
 			//加载分类
 			async loadCateList(fid, sid){
-				let list = await this.$api.json('cateList');
-				let cateList = list.filter(item=>item.pid == fid);
+                let cateTreeRes = await this.$api.good.category.tree()
+                let list = cateTreeRes.result
+				// let list = await this.$api.json('cateList');
+				let cateList = list.find(item=>item.id == fid).children;
 				
-				cateList.forEach(item=>{
-					let tempList = list.filter(val=>val.pid == item.id);
-					item.child = tempList;
-				})
+				// cateList.forEach(item=>{
+				// 	let tempList = list.filter(val=>val.pid == item.id);
+				// 	item.child = tempList;
+				// })
 				this.cateList = cateList;
+                this.currentTitle()
 			},
 			//加载商品 ，带下拉刷新和上滑加载
 			async loadData(type='add', loading) {
@@ -121,18 +135,24 @@
 				}else{
 					this.loadingType = 'more'
 				}
+                if(type === 'refresh'){
+                    this.listQuery.page=1
+                	this.goodsList = [];
+                }else{
+                    this.listQuery.page++;
+                }
 				
-				let goodsList = await this.$api.json('goodsList');
-				if(type === 'refresh'){
-					this.goodsList = [];
-				}
+				// let goodsList = await this.$api.json('goodsList');
+                let goodsRes = await this.$api.good.list(this.listQuery);
+                let goodsList = goodsRes.result.rows
+				
 				//筛选，测试数据直接前端筛选了
 				if(this.filterIndex === 1){
 					goodsList.sort((a,b)=>b.sales - a.sales)
 				}
 				if(this.filterIndex === 2){
 					goodsList.sort((a,b)=>{
-						if(this.priceOrder == 1){
+						if(this.listQuery.priceOrder == 1){
 							return a.price - b.price;
 						}
 						return b.price - a.price;
@@ -142,7 +162,7 @@
 				this.goodsList = this.goodsList.concat(goodsList);
 				
 				//判断是否还有下一页，有是more  没有是nomore(测试数据判断大于20就没有了)
-				this.loadingType  = this.goodsList.length > 20 ? 'nomore' : 'more';
+				this.loadingType  = this.goodsList.length >= goodsRes.result.count ? 'nomore' : 'more';
 				if(type === 'refresh'){
 					if(loading == 1){
 						uni.hideLoading()
@@ -158,10 +178,11 @@
 				}
 				this.filterIndex = index;
 				if(index === 2){
-					this.priceOrder = this.priceOrder === 1 ? 2: 1;
+					this.listQuery.priceOrder = this.listQuery.priceOrder === 1 ? 2: 1;
 				}else{
-					this.priceOrder = 0;
+					this.listQuery.priceOrder = 0;
 				}
+                this.listQuery.salesOrder = index===1?1:0;
 				uni.pageScrollTo({
 					duration: 300,
 					scrollTop: 0
@@ -182,7 +203,7 @@
 			},
 			//分类点击
 			changeCate(item){
-				this.cateId = item.id;
+				this.listQuery.categoryId = item.id;
 				this.toggleCateMask();
 				uni.pageScrollTo({
 					duration: 300,
@@ -192,16 +213,42 @@
 				uni.showLoading({
 					title: '正在加载'
 				})
+                this.currentTitle()
 			},
 			//详情
 			navToDetailPage(item){
 				//测试数据没有写id，用title代替
-				let id = item.title;
+				let id = item.id;
 				uni.navigateTo({
 					url: `/pages/product/product?id=${id}`
 				})
 			},
-			stopPrevent(){}
+			stopPrevent(){},
+            getPrice(specs){
+                if(!specs || !specs.length){
+                    return 0
+                }
+                if(specs.length==1){
+                    return specs[0].salePrice
+                }else{
+                    var specsClone = Utils.deepClone(specs)
+                    specsClone.sort((a,b)=>a.salePrice - b.salePrice)
+                    var min = specsClone[0].salePrice,max=specsClone[specsClone.length-1].salePrice
+                    return min
+                }
+            },
+            currentTitle(){
+                var cur = this.cateList.find(pitem=>{
+                    var c = pitem.children.find(citem=>citem.id==this.listQuery.categoryId);
+                    if(!c) return false;
+                    pitem.subName = c.name
+                    return true
+                })
+                var title = cur && cur.subName ||'商品列表'
+                uni.setNavigationBarTitle({
+                	title
+                })
+            }
 		},
 	}
 </script>

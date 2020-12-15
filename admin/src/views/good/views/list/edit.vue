@@ -24,7 +24,7 @@
                     <el-upload ref="upload" :action="baseUrl+'/api/file/upload'" :file-list="fileList" list-type="picture-card" :auto-upload="true" :on-success="onSuccess">
                         <i slot="default" class="el-icon-plus"></i>
                         <div slot="file" slot-scope="{file}">
-                            <span v-if="file.isDefault" class="image-default-tag">默认</span>
+                            <span v-if="file.isDefault" class="image-default-tag">主图</span>
                             <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
                             <span class="el-upload-list__item-actions">
                                 <span class="el-upload-list__item-preview" title="设为主图" @click="handleSetDefault(file)">
@@ -126,10 +126,26 @@ export default {
     },
     created() {
         this.getCategory();
+        if(this.$route.query.id){
+            this.getData()
+        }
     },
     methods: {
         edit(data) {
 
+        },
+        getData(){
+            const id = this.$route.query.id;
+            goodApi.good.detail(id).then(res=>{
+                this.form = res.result
+                this.fileList = res.result.images.map(item=>{
+                    item.url = this.baseUrl + item.url;
+                    if(res.result.thumbnail==item.id){
+                        item.isDefault = true
+                    }
+                    return item
+                })
+            })
         },
         submit(data) {
             this.refresh();
@@ -157,7 +173,7 @@ export default {
             })
             this.$set(file,'isDefault',true)
         },
-        onSuccess(response, file, fileList){console.log('success',response, file, fileList)
+        onSuccess(response, file, fileList){
             file.id = response.result.id
             if(fileList.length==1){
                 this.$set(file,'isDefault',true)
@@ -181,7 +197,9 @@ export default {
                 var postData = deepClone(this.form);
                 postData.thumbnail = fileList.find(item=>item.isDefault).id;
                 postData.images=fileList
-                postData.categoryId = postData.categoryId.pop()
+                if(postData.categoryId instanceof Array){
+                    postData.categoryId = postData.categoryId.pop()
+                }
                 this.loading=true
                 goodApi.good.save(postData).then(()=>{
                     this.$message({type:'success',message:'保存成功',duration:2000});

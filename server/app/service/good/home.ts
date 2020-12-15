@@ -1,5 +1,4 @@
 import { Service } from 'egg';
-
 /**
  * role Service
  */
@@ -10,17 +9,29 @@ export default class GoodService extends Service {
     * @param params - 列表查询参数
     */
     public async list(options) {
-        let {page = 1, pageSize = this.config.pageSize} = options
+        let {page = 1, pageSize = this.config.pageSize} = options;
+        const where = {};
+        const order =[ ["createdAt", 'DESC']]
+        if(options.categoryId){
+            where['categoryId'] = options.categoryId
+        }
+        if(options.priceOrder>0){
+            order.unshift(['salePrice', options.priceOrder==1?'ASC':'DESC'])
+        }
+        if(options.salesOrder>0){
+            order.unshift(['sales', options.salesOrder==1?'DESC':'ASC'])
+        }
         let list = await this.app.model.Good.findAndCountAll({
             limit: +pageSize,
             offset: pageSize * (page-1),
-            order:[
-                ["createdAt", 'DESC'],
-            ],
-            include:[{
-                model: this.app.model.SystemFile,as:'thumbnailImage'
-            }]
+            order: order,
+            where: where,
+            include:[
+                { model: this.app.model.SystemFile, as:'thumbnailImage'},
+                { model: this.app.model.GoodSpec, as: 'apecs' },
+            ]
         })
+
         return list;
     }
     /**
@@ -42,6 +53,9 @@ export default class GoodService extends Service {
         let goodId = options.id;
         let mechantId = options.mechantId;
         const method = goodId?'upsert':'create';
+        options.specs.sort((a,b)=>a.salePrice - b.salePrice)
+        options.salePrice = options.specs[0].salePrice
+        options.marketPrice = options.specs[0].marketPrice
         await ctx.model.Good[method](options)
         .then((res) => {
             res && (goodId = res.id)
@@ -84,7 +98,8 @@ export default class GoodService extends Service {
         let data = await this.app.model.Good.findOne({
             where: {id},
             include:[
-                {model: this.app.model.GoodCategory,as:'category'},
+                { model: this.app.model.GoodCategory,as:'category'},
+                { model: this.app.model.SystemFile, as:'thumbnailImage'},
             ]
         })
         const images = await this.app.model.GoodImage.findAll({

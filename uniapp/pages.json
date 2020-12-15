@@ -66,6 +66,11 @@
 			"style": {
 				"navigationBarTitleText": "修改资料"
 			}
+		},{
+			"path": "pages/user/fav",
+			"style": {
+				"navigationBarTitleText": "我的收藏"
+			}
 		}, {
 			"path": "pages/cart/cart",
 			"style": {

@@ -8,6 +8,7 @@ import ExportGoodHome from '../../../app/controller/good/home';
 import ExportGoodOrder from '../../../app/controller/good/order';
 import ExportLogMessage from '../../../app/controller/log/message';
 import ExportMemberAddress from '../../../app/controller/member/address';
+import ExportMemberFav from '../../../app/controller/member/fav';
 import ExportMerchantIndex from '../../../app/controller/merchant/index';
 import ExportSystemFile from '../../../app/controller/system/file';
 import ExportSystemMenu from '../../../app/controller/system/menu';
@@ -29,6 +30,7 @@ declare module 'egg' {
     }
     member: {
       address: ExportMemberAddress;
+      fav: ExportMemberFav;
     }
     merchant: {
       index: ExportMerchantIndex;

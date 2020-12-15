@@ -1,4 +1,7 @@
+import axios from '../axios'
 import category from './category'
 export default{
-	category
+	category,
+    list: (params)=>axios.get('/api/good',{params}),
+    detail: (id)=>axios.get('/api/good/'+id)
 }

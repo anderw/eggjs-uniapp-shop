@@ -4,13 +4,14 @@
 		<navigator url="/pages/address/address?source=1" class="address-section">
 			<view class="order-content">
 				<text class="yticon icon-shouhuodizhi"></text>
-				<view class="cen">
+				<view class="cen" v-if="addressData">
 					<view class="top">
-						<text class="name">{{addressData.name}}</text>
-						<text class="mobile">{{addressData.mobile}}</text>
+						<text class="name">{{addressData.linkMan}}</text>
+						<text class="mobile">{{addressData.linkPhone}}</text>
 					</view>
-					<text class="address">{{addressData.address}} {{addressData.area}}</text>
+					<text class="address">{{addressData.province}} {{addressData.city}}{{addressData.district}}{{addressData.place}}</text>
 				</view>
+                <view class="cen" v-else>请选择收货地址</view>
 				<text class="yticon icon-you"></text>
 			</view>
 
@@ -23,18 +24,18 @@
 				<text class="name">西城小店铺</text>
 			</view>
 			<!-- 商品列表 -->
-			<view class="g-item">
-				<image src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=756705744,3505936868&fm=11&gp=0.jpg"></image>
+			<view class="g-item" v-for="item in goodsData" :key="item.id">
+				<image :src="item.goodImageUrl"></image>
 				<view class="right">
-					<text class="title clamp">古黛妃 短袖t恤女夏装2019新款</text>
-					<text class="spec">春装款 L</text>
+					<text class="title clamp">{{item.name}}</text>
+					<text class="spec">{{item.goodSpecName}}</text>
 					<view class="price-box">
-						<text class="price">￥17.8</text>
-						<text class="number">x 1</text>
+						<text class="price">￥{{item.salePrice}}</text>
+						<text class="number">x {{item.qty}}</text>
 					</view>
 				</view>
 			</view>
-			<view class="g-item">
+			<!-- <view class="g-item">
 				<image src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=1620020012,789258862&fm=26&gp=0.jpg"></image>
 				<view class="right">
 					<text class="title clamp">韩版于是洞洞拖鞋 夏季浴室防滑简约居家【新人专享，限选意见】</text>
@@ -44,18 +45,18 @@
 						<text class="number">x 1</text>
 					</view>
 				</view>
-			</view>
+			</view> -->
 		</view>
 
 		<!-- 优惠明细 -->
 		<view class="yt-list">
-			<view class="yt-list-cell b-b" @click="toggleMask('show')">
+			<view class="yt-list-cell b-b">
 				<view class="cell-icon">
 					券
 				</view>
 				<text class="cell-tit clamp">优惠券</text>
 				<text class="cell-tip active">
-					选择优惠券
+					<text style="color: #aaa;">无</text>
 				</text>
 				<text class="cell-more wanjia wanjia-gengduo-d"></text>
 			</view>
@@ -71,11 +72,11 @@
 		<view class="yt-list">
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">商品金额</text>
-				<text class="cell-tip">￥179.88</text>
+				<text class="cell-tip">￥{{totalSalePrice}}</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">优惠金额</text>
-				<text class="cell-tip red">-￥35</text>
+				<text class="cell-tip red">-￥0</text>
 			</view>
 			<view class="yt-list-cell b-b">
 				<text class="cell-tit clamp">运费</text>
@@ -83,7 +84,7 @@
 			</view>
 			<view class="yt-list-cell desc-cell">
 				<text class="cell-tit clamp">备注</text>
-				<input class="desc" type="text" v-model="desc" placeholder="请填写备注信息" placeholder-class="placeholder" />
+				<input class="desc" type="text" v-model="remark" placeholder="请填写备注信息" placeholder-class="placeholder" />
 			</view>
 		</view>
 		
@@ -92,7 +93,7 @@
 			<view class="price-content">
 				<text>实付款</text>
 				<text class="price-tip">￥</text>
-				<text class="price">475</text>
+				<text class="price">{{totalSalePrice}}</text>
 			</view>
 			<text class="submit" @click="submit">提交订单</text>
 		</view>
@@ -124,11 +125,12 @@
 </template>
 
 <script>
+    import {mapState} from 'vuex'
 	export default {
 		data() {
 			return {
 				maskState: 0, //优惠券面板显示状态
-				desc: '', //备注
+				remark: '', //备注
 				payType: 1, //1微信 2支付宝
 				couponList: [
 					{
@@ -144,22 +146,30 @@
 						price: 15,
 					}
 				],
-				addressData: {
-					name: '许小星',
-					mobile: '13853989563',
-					addressName: '金九大道',
-					address: '山东省济南市历城区',
-					area: '149号',
-					default: false,
-				}
+				addressData: null,
+                goodsData:[],
+                totalSalePrice: 0
 			}
 		},
+        computed: {
+        	...mapState(['merchantId','user','baseUrl'])
+        },
 		onLoad(option){
 			//商品数据
-			//let data = JSON.parse(option.data);
+			let data = JSON.parse(option.data);
+            this.goodsData = data;
+            this.totalSalePrice = data.reduce((next,cur)=>-(-next-cur.salePrice*cur.qty),0)
 			//console.log(data);
+            this.loadAddress();
 		},
 		methods: {
+            loadAddress(){
+                this.$api.user.address.list({isDefault: true}).then(res=>{
+                    if(res.result.rows.length){
+                        this.addressData = res.result.rows[0]
+                    }
+                })
+            },
 			//显示优惠券面板
 			toggleMask(type){
 				let timer = type === 'show' ? 10 : 300;
@@ -176,9 +186,18 @@
 				this.payType = type;
 			},
 			submit(){
-				uni.redirectTo({
-					url: '/pages/money/pay'
-				})
+                const sendData = {
+                    "addressId": this.addressData.id,
+                    "merchantId": this.merchantId,
+                    "remark": this.remark,
+                    "goodList": this.goodsData
+                }
+                this.$api.user.order.save(sendData).then(()=>{
+                    uni.redirectTo({
+                    	url: '/pages/money/orderSuccess'
+                    })
+                })
+				
 			},
 			stopPrevent(){}
 		}

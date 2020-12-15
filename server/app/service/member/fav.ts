@@ -3,7 +3,7 @@ import { Service } from 'egg';
 /**
  * role Service
  */
-export default class AddressService extends Service {
+export default class FavService extends Service {
 
     /**
     * 列表
@@ -13,13 +13,13 @@ export default class AddressService extends Service {
         const { ctx } = this
         let {page = 1, pageSize = this.config.pageSize} = options
         const where = {userId: ctx.session.user.id};
-        if(typeof options.isDefault !== 'undefined'){
-            where['isDefault']=options.isDefault?true:false
-        }
-        let list = await this.app.model.UserAddress.findAndCountAll({
+        let list = await this.app.model.UserFav.findAndCountAll({
             limit: +pageSize,
             offset: pageSize * (page-1),
-            where: where
+            where: where,
+            include:[
+                {model: this.app.model.Good, as:'good',include:[{model:this.app.model.SystemFile,as:'thumbnailImage'}]}
+            ]
         })
         return list;
     }
@@ -28,7 +28,7 @@ export default class AddressService extends Service {
     * @param params - 列表查询参数
     */
     public async select() {
-        let list = await this.app.model.UserAddress.findAll()
+        let list = await this.app.model.UserFav.findAll()
         return list;
     }
     
@@ -41,12 +41,7 @@ export default class AddressService extends Service {
         let results = { code: 400, message: "失败", }
         options.userId = ctx.session.user.id;
         
-        if(options.isDefault){//先将其它地址默认地址去掉
-            await ctx.model.UserAddress.update({isDefault: false},{
-                where:{userId: ctx.session.user.id}
-            })
-        }
-        await ctx.model.UserAddress.upsert(options).then(() => {
+        await ctx.model.UserFav.upsert(options).then(() => {
             results = { code: 0, message: "添加成功", }
         }).catch(err => {
             results = { code: 400, message: err, }
@@ -56,13 +51,13 @@ export default class AddressService extends Service {
     }
     public async detail(id){
         // const { ctx } = this
-        let data = await this.app.model.UserAddress.findOne({where: {id}})
+        let data = await this.app.model.UserFav.findOne({where: {id}})
         return data
     }
     //删除
     public async remove(id){
         let results
-        await this.ctx.model.UserAddress.destroy({ where: { id}}).then(() => {
+        await this.ctx.model.UserFav.destroy({ where: { id}}).then(() => {
             results = { code: 0, message: "删除成功", }
         }).catch(error => {
             results = { code: 400, message: error, }

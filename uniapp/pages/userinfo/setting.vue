@@ -2,7 +2,10 @@
 	<view>
 		<div class="form-row" v-for="item in list" :key="item.prop">
 			<text class="label">{{titleMap[item.prop]}}:</text>
-			<input class="text" type="text" v-model="item.value"/>
+			<input v-if="['name','phone','email'].indexOf(item.prop)>-1" class="text" type="text" v-model="item.value"/>
+            <picker class="text" @change="bindPickerChange" :value="item.value-1" :range="sexArray">
+                <view class="uni-input">{{sexArray[item.value-1]}}</view>
+            </picker>
 		</div>
 		<div class="form-row">
 			<button class="btn" @click="save">确定</button>
@@ -11,6 +14,8 @@
 </template>
 
 <script>
+    import { mapMutations } from 'vuex';
+    
 	export default{
 		data(){
 			return {
@@ -21,7 +26,8 @@
 					'phone':'电话',
 					'email':'邮箱',
 					'sex':'性别',
-				}
+				},
+                sexArray:['男','女']
 			}
 		},
 		onLoad(option){
@@ -33,16 +39,25 @@
 			})
 		},
 		methods:{
+            ...mapMutations(['login']),
+            bindPickerChange: function(e) {
+                console.log('picker发送选择改变，携带值为', e.target.value)
+                var sexItem = this.list.find(a=>a.prop=='sex')
+                sexItem.value = e.target.value+1
+            },
 			save(){
-				console.log(this.list)
 				for(const i in this.list){
 					this.form[this.list[i].prop] = this.list[i].value
 				}
 				this.$api.user.update(this.form).then(()=>{
-					this.$api.msg('更新成功')
-					setTimeout(()=>{
-						uni.navigateBack()
-					}, 800)
+					this.$api.msg('更新成功');
+                    this.$api.user.info().then(resp=>{
+                    	this.login(resp.result);
+                    	uni.navigateBack();  
+                    })
+					// setTimeout(()=>{
+					// 	uni.navigateBack()
+					// }, 800)
 				})
 			}
 		}

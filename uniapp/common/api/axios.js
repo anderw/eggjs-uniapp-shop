@@ -4,20 +4,20 @@ import store from '../../store'
 
 // create an axios instance
 const service = axios.create({
-	baseURL: 'http://localhost:7001', // url = base url + request url
-	//withCredentials: true, // send cookies when cross-domain requests 注意：withCredentials和后端配置的cross跨域不可同时使用
-	timeout: 6000, // request timeout
-	crossDomain: true
+    baseURL: 'http://localhost:7001', // url = base url + request url
+    //withCredentials: true, // send cookies when cross-domain requests 注意：withCredentials和后端配置的cross跨域不可同时使用
+    timeout: 6000, // request timeout
+    crossDomain: true
 })
 
 // request拦截器,在请求之前做一些处理
 service.interceptors.request.use(
-    config => {console.log('store.state.token',store.state)
+    config => {
         if (store.state.token) {
             // 给请求头添加user-token
             config.headers["authorization"] = store.state.token;
         }
-        console.log('请求拦截成功')
+        // console.log('请求拦截成功')
         return config;
     },
     error => {
@@ -31,29 +31,29 @@ service.interceptors.response.use(res => {
     if (res.data.status== 200) {
         return res.data
     } else {
-		uni.showToast({
-			title: res.data.message || '服务器错误',
-			duration: 2000,
-			mask: false,
-			icon: 'none'
-		});
+        uni.showToast({
+            title: res.data.message || '服务器错误',
+            duration: 2000,
+            mask: false,
+            icon: 'none'
+        });
         return Promise.reject(res.data.msg);
     }
 }, error => {
-	if (error.response && error.response.status) {
-		switch (error.response.status) {
-			case 401:
-				break;
-			default:
-				break;
-		}
-		uni.showToast({
-			title: error.response.data.message || '服务器错误',
-			duration: 2000,
-			mask: false,
-			icon: 'none'
-		});
-	}
+    if (error.response && error.response.status) {
+        switch (error.response.status) {
+            case 401:
+                break;
+            default:
+                break;
+        }
+        uni.showToast({
+            title: error.response.data.message || '服务器错误',
+            duration: 2000,
+            mask: false,
+            icon: 'none'
+        });
+    }
     return Promise.reject(error)
 })
 

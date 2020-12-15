@@ -14,9 +14,9 @@ export default class OrderService extends Service {
         let list = await this.app.model.GoodOrder.findAndCountAll({
             limit: +pageSize,
             offset: pageSize * (page-1),
-            include:[{
-                model: this.app.model.SystemFile,as:'thumbnailImage'
-            }]
+            include:[
+                { model: this.app.model.GoodOrderLine,as:'goodList'}
+            ]
         })
         return list;
     }
@@ -36,7 +36,7 @@ export default class OrderService extends Service {
     public async save(options: any) {
         const { ctx } = this
         let results = { code: 400, message: "失败" }
-        let mechantModel = await this.app.model.Merchant.findOne({where:{id: options.mechantId}});;
+        let mechantModel = await this.app.model.Merchant.findOne({where:{id: options.merchantId}});;
         let addressModel = await this.app.model.UserAddress.findOne({where:{id: options.addressId}});
 
         if(!addressModel){
@@ -50,11 +50,12 @@ export default class OrderService extends Service {
             linkPhone: addressModel.linkPhone,
             goodsTotalQty: options.goodList.length,
             totalAmount: options.goodList.reduce((next,cur)=>next+cur.salePrice*cur.qty,0),
-            merchantId: options.mechantId,
+            merchantId: mechantModel.id,
             shopName: mechantModel.name,
             remark: options.remark,
             userId: ctx.session.user.id,
-            userName: ctx.session.user.name
+            userName: ctx.session.user.name,
+            orderNo: ctx.helper.randomNo(3)
         }
         const order = await ctx.model.GoodOrder['create'](orderModel)
         .then((res) => {
@@ -107,6 +108,16 @@ export default class OrderService extends Service {
         let results
         await this.ctx.model.GoodOrder.destroy({ where: { id}}).then(() => {
             results = { code: 0, message: "删除成功", }
+        }).catch(error => {
+            results = { code: 400, message: error, }
+        })
+        return results
+    }
+    //取消
+    public async cancel(id){
+        let results
+        await this.ctx.model.GoodOrder.update({status: 'canceled'},{ where: { id}}).then(() => {
+            results = { code: 0, message: "取消成功", }
         }).catch(error => {
             results = { code: 400, message: error, }
         })

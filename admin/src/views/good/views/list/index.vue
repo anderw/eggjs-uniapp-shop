@@ -59,7 +59,14 @@ export default {
     },
     methods: {
         edit(data) {
-            this.$router.push('/good/list/create')
+            const query = {};
+            if(data){
+                query.id=data.id
+            }
+            this.$router.push({
+                path:'/good/list/create',
+                query: query
+            })
         },
         submit(data) {
             this.refresh();
