@@ -7,7 +7,7 @@ export default () => {
         host: "localhost",// host
         port: 3306,// 端口号
         username: "root",// 用户名
-        password: "",// 密码
+        password: "123456",// 密码
         database: "eggjs-uniapp-shop"// 数据库名
     };
   

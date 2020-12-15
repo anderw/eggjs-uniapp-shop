@@ -36,7 +36,9 @@ const store = new Vuex.Store({
 		}
 	},
 	actions: {
-	
+		logout({commit}){
+			commit('logout')
+		}
 	}
 })
 

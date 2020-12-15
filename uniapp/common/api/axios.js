@@ -43,6 +43,7 @@ service.interceptors.response.use(res => {
     if (error.response && error.response.status) {
         switch (error.response.status) {
             case 401:
+				store.dispatch('logout')
                 break;
             default:
                 break;
