@@ -7,6 +7,7 @@
 
 <template>
     <div class="login-container">
+        <div id="particles-js" style="display: flex;align-items: center;justify-content: center"></div>
         <div class="wraper">
             <!-- LOGO -->
             <div class="logo"><h1>后台管理系统</h1></div>
@@ -17,13 +18,13 @@
             <el-form ref="form" :model="form" :rules="rules">
                 <!-- 账户 | 邮箱 -->
                 <el-form-item prop="username">
-                    <i class="icon-before ico-login-username"></i>
+                    <i class="icon-before el-icon-user"></i>
                     <el-input class="txt-username" v-model="form.username" autofocus clearable :disabled="loading" :placeholder="'请输入用户名'"></el-input>
                 </el-form-item>
 
                 <!-- 密码 -->
                 <el-form-item prop="password">
-                    <i class="icon-before ico-login-password"></i>
+                    <i class="icon-before el-icon-lock"></i>
                     <el-input class="txt-password" v-model="form.password" clearable :type="passwordType" :disabled="loading" placeholder="请输入密码"></el-input>
 
                     <!-- 显示 | 隐藏密码 -->
@@ -44,7 +45,6 @@
 
                     <!-- 登录中 不可点击 -->
                     <el-button class="btn-login" :loading="loading" v-if="loading">登录中...</el-button>
-                    <!-- <router-link to="/signup" class="linkto-signup">{{$t('common.applyAccount')}}</router-link> -->
                 </el-form-item>
             </el-form>
         </div>
@@ -61,13 +61,10 @@ import systemApi from '@/views/system/api/';
 /* Cookies */
 import Cookies from 'js-cookie';
 
-/* 密码加密 */
-import bgLogo from '@/assets/images/logo.png';
-	/* eslint-disable */
+import particlesJS from './particles';
 export default {
     components: { },
     data() {
-		/* eslint-enable */
         var rules = {
             username: [
                 { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -76,10 +73,6 @@ export default {
             password: [
                 { required: true, message: "请输入密码", trigger: 'blur' },
                 { min: 3, max: 18, message: "密码格式不正确", trigger: 'blur' }
-            ],
-            domain: [
-                { required: true, message: "请输入租户域", trigger: 'blur' },
-                { pattern: /^[0-9a-zA-Z_]{5,20}$/, message: '租户域必须为长度为5-20的数字、英文大小写', trigger: 'blur' }
             ],
            
         };
@@ -97,9 +90,8 @@ export default {
 
             loading: false, // 标识是否正在登录中
             passwordShow: false, // 切换 显示 | 隐藏密码
-            remember: true, // 标识是否记住租户域
+            remember: true, // 标识是否记住账户
 
-            logoUrl: Cookies.get('logoUrl') || bgLogo,
             codeRandom: Math.random(),
             timer: null,
 			yers:'',
@@ -118,6 +110,7 @@ export default {
 
         this.$nextTick(() => {
             var _this = this;
+            this.initBg();
             // TODO 绑定 enter 键，提交表单
             document.onkeydown = event => {
                 var e = event || window.event || arguments.callee.caller.arguments[0];
@@ -150,17 +143,11 @@ export default {
             let passwordShow = this.passwordShow;
             return passwordShow ? "隐藏密码" : "显示密码";
         },
-        refreshCode(){
-            if(this.is_verifyCode){
-                this.codeRandom = Math.random()
-            }
-        },
         /* 校验通过才能进行登录 */
         onSubmit() {
             
             this.$refs['form'].validate(valid => {
                 if (!valid) {
-                    this.refreshCode();
                     return false;
                 }
                 this.login();
@@ -184,7 +171,6 @@ export default {
                 this.getUserInfo();
             })
             .catch(() => {
-                this.refreshCode();
                 this.loading = false;
             });
         },
@@ -193,24 +179,144 @@ export default {
         getUserInfo() {
             /* 登录之后调取用户信息接口 */
             this.$store.dispatch('GetUserInfo', true).then(() => {
-                    // console.log(res)
                     this.loading = false;
                     this.$message['success']("登录成功");
                     let query = this.$route.query;
                     if (query && query.redirect && query.redirect !== '/login' && this.needRedirect) {
                         this.$router.replace({ path: query.redirect });
-                        // this.$router.go(-1)
                         return;
                     }
                     this.$router.push('/');
                     // this.$router.go(-1)
                     // 查询用户身份
                 }).catch(() => {
-                    this.refreshCode();
                     this.loading = false;
                 });
                 
         },
+        initBg(){
+
+		particlesJS('particles-js',
+		  
+		  {
+		    "particles": {
+		      "number": {
+		        "value": 80,
+		        "density": {
+		          "enable": true,
+		          "value_area": 800
+		        }
+		      },
+		      "color": {
+		        "value": "#ffffff"
+		      },
+		      "shape": {
+		        "type": "circle",
+		        "stroke": {
+		          "width": 0,
+		          "color": "#000000"
+		        },
+		        "polygon": {
+		          "nb_sides": 5
+		        },
+		        "image": {
+		          "src": "img/github.svg",
+		          "width": 100,
+		          "height": 100
+		        }
+		      },
+		      "opacity": {
+		        "value": 0.5,
+		        "random": false,
+		        "anim": {
+		          "enable": false,
+		          "speed": 1,
+		          "opacity_min": 0.1,
+		          "sync": false
+		        }
+		      },
+		      "size": {
+		        "value": 5,
+		        "random": true,
+		        "anim": {
+		          "enable": false,
+		          "speed": 40,
+		          "size_min": 0.1,
+		          "sync": false
+		        }
+		      },
+		      "line_linked": {
+		        "enable": true,
+		        "distance": 150,
+		        "color": "#ffffff",
+		        "opacity": 0.4,
+		        "width": 1
+		      },
+		      "move": {
+		        "enable": true,
+		        "speed": 6,
+		        "direction": "none",
+		        "random": false,
+		        "straight": false,
+		        "out_mode": "out",
+		        "attract": {
+		          "enable": false,
+		          "rotateX": 600,
+		          "rotateY": 1200
+		        }
+		      }
+		    },
+		    "interactivity": {
+		      "detect_on": "canvas",
+		      "events": {
+		        "onhover": {
+		          "enable": true,
+		          "mode": "repulse"
+		        },
+		        "onclick": {
+		          "enable": true,
+		          "mode": "push"
+		        },
+		        "resize": true
+		      },
+		      "modes": {
+		        "grab": {
+		          "distance": 400,
+		          "line_linked": {
+		            "opacity": 1
+		          }
+		        },
+		        "bubble": {
+		          "distance": 400,
+		          "size": 40,
+		          "duration": 2,
+		          "opacity": 8,
+		          "speed": 3
+		        },
+		        "repulse": {
+		          "distance": 200
+		        },
+		        "push": {
+		          "particles_nb": 4
+		        },
+		        "remove": {
+		          "particles_nb": 2
+		        }
+		      }
+		    },
+		    "retina_detect": true,
+		    "config_demo": {
+		      "hide_card": false,
+		      "background_color": "#b61924",
+		      "background_image": "",
+		      "background_position": "50% 50%",
+		      "background_repeat": "no-repeat",
+		      "background_size": "cover"
+		    }
+		  }
+
+		);
+		}
         
         
     }
@@ -220,7 +326,20 @@ export default {
 <style lang="scss" scoped>
 @import '@/assets/css/variables.scss';
 
-
+#particles-js {
+    width: 100%;
+    height: 100%;
+    // background-image: url(../../assets/images/login_background.png);
+    // background-image: url(../../assets/images/login-bg.jpg);
+    background-size: cover;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
 .login-desc {
     font-size: 20px;
     margin: 20px auto;
@@ -233,7 +352,7 @@ export default {
     height: 100%;
     left: 0;
     top: 0;
-    background: url(../../../assets/images/login-bg-1.jpg) center no-repeat #000;
+    background: #000;
     background-size: cover;
 	overflow-y: auto;
 	min-height: 700px;
@@ -450,34 +569,5 @@ export default {
         }
     }
 
-    /* 底部版权样式 start */
-    .foot {
-        position: absolute;
-        bottom: 10px;
-        left: 0;
-        right: 0;
-        text-align: center;
-        color: #ccc;
-
-        .lang {
-            margin-left: 20px;
-            color: #ccc;
-        }
-        a{
-            color: #ccc;
-            font-size: 14px;
-        }
-    }
-    /* 底部版权样式 end */
-}
-.lang-select-login {
-    position: absolute;
-    right: 120px;
-    top: 20px;
-}
-.role-select{
-    .el-radio{
-        color: #ccc;
-    }
 }
 </style>
