@@ -2,7 +2,7 @@ import { Controller } from 'egg';
 import { bp } from 'egg-blueprint'
 const requireLogin = require('../../middleware/requireLogin')()
 /**
-* @Controller 角色
+* @Controller 订单
 */
 bp.prefix('/api/order', 'OrderController')
 export default class OrderController extends Controller {

@@ -5,7 +5,7 @@
             <!-- <el-button type="text" class="btn-refresh" icon="el-icon-refresh" @click="refresh">刷新</el-button> -->
             <!-- 左侧 页面模块标题 -->
             <div class="sub-header-title">
-                店铺设置
+                店铺资料
             </div>
         </el-header>
         <el-main class="center-main" v-loading="loading">

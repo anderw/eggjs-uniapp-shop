@@ -2,7 +2,7 @@ import { Context } from 'egg';
 module.exports = function(needLogin){
     return async function requireLogin(ctx: Context) {
         const token = ctx.request.header.authorization;
-        needLogin = typeof(needLogin)=='undefined'?true: needLogin
+        needLogin = typeof(needLogin)=='undefined'?true:needLogin
     //   let decode: any;
         if (token) {
             try {
@@ -24,11 +24,11 @@ module.exports = function(needLogin){
                 return pass;
             } catch (error) {
                 needLogin && ctx.fail(401,error.message||'解析失败')
-                return needLogin || false;
+                return !needLogin;
             }
         } else {
             needLogin && ctx.fail(401,"未登录")
-            return needLogin || false;
+            return !needLogin;
         }
     }
 };
