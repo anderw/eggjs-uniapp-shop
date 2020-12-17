@@ -8,12 +8,12 @@
 			<span v-else>
 				<el-tooltip class="icon-after" effect="dark" placement="right" :open-delay="300" :tabindex="-1" :disabled="!item.tooltip || (item.prop.indexOf(',')<=-1) && !scope.row[item.prop]||scope.row[item.prop]==='--'">
 					<div :class="typeof(item.break)==='undefined' || item.break?'break-word':''">
-						{{scope.row[item.prop]|emptyFilter}}
+						<span v-html="getCustomContent(item,scope.row)"></span>
 					</div>
-					<div slot="content" style="max-width: 400px;line-height:1.4; max-height: 300px;overflow-y: auto;" v-if="!(!item.tooltip || (item.prop.indexOf(',')<=-1) && !scope.row[item.prop]||scope.row[item.prop]==='--')">
+					<div slot="content" style="max-width: 400px; max-height: 300px;overflow-y: auto;" v-if="!(!item.tooltip || (item.prop.indexOf(',')<=-1) && !scope.row[item.prop]||scope.row[item.prop]==='--')">
                             <div v-if="typeof(item.tooltip) ==='object' || typeof(item.tooltip) ==='function'" v-html="getContent(item,scope.row)"></div>
                             <div v-else>
-                                {{scope.row[item.prop]}}
+                                <span v-html="getCustomContent(item,scope.row)"></span>
                             </div>
 					</div>
 				</el-tooltip>
@@ -40,21 +40,17 @@ export default{
 	},
 	methods:{
         getContent(data,row){     
-           if(data && typeof data.tooltip ==='object' && data.tooltip.content instanceof Function ){
-           	return data.tooltip &&data.tooltip.content(this.item,row)
-           }else{
-               return data.tooltip
-           }
+           	if(data && typeof data.tooltip ==='object' && data.tooltip.content instanceof Function ){
+           		return data.tooltip &&data.tooltip.content(this.item,row)
+           	}else{
+               	return data.tooltip
+           	}
            
-         }
+		},
+		getCustomContent(data,row){
+			var filterParams = data.filterParams||[]
+			return data.filter && data.filter(row[data.prop], ...filterParams) || this.$options.filters['emptyFilter'](row[data.prop])
+		}
 	}
 }
 </script>
-<style lang="scss" scoped>
-	.break-word{
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-		    outline: none;
-	}
-</style>

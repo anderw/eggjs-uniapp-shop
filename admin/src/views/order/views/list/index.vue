@@ -8,22 +8,16 @@
         </el-header>
         <el-main class="center-main">
             <div class="table-filter">
-                <el-button type="primary" @click="edit()" icon="el-icon-plus" class="float-right">添加</el-button>
+                
             </div>
-            <TableMain ref="table" :columnItems="columnItems" :api="listApi">
-                <template slot="thumbnail" slot-scope="scope">
-                    <img  v-if="scope.row.thumbnailImage" :src="baseUrl+scope.row.thumbnailImage.url" height="60px">
-                </template>
-                <template slot="status" slot-scope="scope">
-                    <span v-if="scope.row.status==1" class="color-green">上架</span>
-                    <span v-else class="color-gray">下架</span>
-                </template>
+            <TableMain ref="table" :columnItems="columnItems" :api="listApi" @row-click="onRowClick">
                 <template slot="action" slot-scope="scope">
                     <el-button type="text" icon="el-icon-edit" @click.stop="edit(scope.row)">编辑</el-button>
-                    <el-button type="text" icon="el-icon-delete" class="color-red" @click.stop="remove(scope.row)">删除</el-button>
+                    <!-- <el-button type="text" icon="el-icon-delete" class="color-red" @click.stop="remove(scope.row)">删除</el-button> -->
                 </template>
             </TableMain>
         </el-main>
+        <Detail :visible.sync="dVisible" :data="currentData"></Detail>
     </el-container>
 </template>
 <script>
@@ -31,19 +25,23 @@ import orderApi from '@/views/order/api';
 import FormDialog from '@/components/FormDialog';
 import { deepClone } from '@/utils'
 import {mapGetters} from 'vuex'
+import {castFilter,constant} from '@/filters'
+import Detail from './detail';
 export default {
-    components: { },
+    components: {Detail },
     data() {
         return {
             listQuery: {
-
+                page: 1,
+                pageIndex: 10
             },
             listApi:orderApi.order.list,
             columnItems:[
                 {prop:'id',label:'ID'},
-                {prop:'name',label:'名称'},
-                {prop:'thumbnail',label:'主图'},
-                {prop:'status',label:'状态'},
+                {prop:'orderNo',label:'订单编号'},
+                {prop:'userName',label:'用户'},
+                {prop:'totalAmount',label:'订单金额',filter: castFilter},
+                {prop:'status',label:'状态',filter: constant,filterParams:['OrderStatus']},
                 {prop:'createdAt',label:'创建时间'},
                 {prop:'action',label:'操作',width: 180},
             ],
@@ -63,10 +61,6 @@ export default {
             if(data){
                 query.id=data.id
             }
-            this.$router.push({
-                path:'/good/list/create',
-                query: query
-            })
         },
         submit(data) {
             this.refresh();
@@ -81,6 +75,10 @@ export default {
         			this.refresh();
         		})
         	}).catch(()=>{})
+        },
+        onRowClick(row){
+            this.currentData = row;
+            this.dVisible = true;
         },
     }
 }

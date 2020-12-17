@@ -23,7 +23,8 @@
 			</div>
             <div class="bg"  :style="{width:width+'px'}"></div>
 		</div>
-        <span v-if="!list.length">暂无数据</span>
+        <span v-if="!$slots.default && !list.length">暂无数据</span>
+		<slot name="default"></slot>
 	</div>
 </template>
 
@@ -60,7 +61,7 @@
 		},
 
 		created(){
-		    // console.log(this.list,'=========')
+		    console.log(this,'=========')
 		},
 
 		methods:{

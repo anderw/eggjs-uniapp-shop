@@ -58,12 +58,12 @@ function checkStatus(status,response){
             if (response.data && response.data.status == 401) {
                 if (router.currentRoute.path != '/login') {
                     store.dispatch('clearUser')
-                    // let nextUrl = router.history.pending?router.history.pending.fullPath:router.history.current.fullPath;
-                    // nextUrl == '/login'?nextUrl="/":false;
-                    // router.replace({
-                    //     path: '/login',
-                    //     // query: { redirect: nextUrl }
-                    // })
+                    let nextUrl = router.history.pending?router.history.pending.fullPath:router.history.current.fullPath;
+                    nextUrl == '/login'?nextUrl="/":false;
+                    router.replace({
+                        path: '/login',
+                        // query: { redirect: nextUrl }
+                    })
                     // return Promise.reject(error);
                 }else{
                     
