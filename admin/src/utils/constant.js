@@ -26,6 +26,16 @@ let _constMap = (() => {
             {value: 1,label:'管理员'},
             {value: 2,label:'商家'},
             {value: 3,label:'用户'},
+        ],
+        // ordered: '待付款', inpayment: '付款中', paid: '已付款，待发货', receiving: '已发货，待收货', completed: '已完成', canceled: '已取消',closed:已关闭
+        OrderStatus:[
+            {value: "ordered",label: '待付款'},
+            {value: "inpayment",label: '付款中'},
+            {value: "paid",label: '待发货'},
+            {value: "receiving",label: '待收货'},
+            {value: "completed",label: '已完成'},
+            {value: "canceled",label: '已取消'},
+            {value: "closed",label: '已关闭'},
         ]
 	};
 	
