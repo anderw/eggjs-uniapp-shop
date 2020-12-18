@@ -94,7 +94,7 @@ export default {
             this.$emit('selection-change',val)
         },
         query(){
-            this.listQuery.pageIndex=1;
+            this.listQuery.page=1;
             this.list = [];
             this.getList();
         },

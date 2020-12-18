@@ -26,6 +26,8 @@ Vue.prototype.$auth = function(authId, action) {
 }
 import TableMain from '@/components/TableMain';
 Vue.component('TableMain',TableMain)
+import TableFilter from '@/components/TableFilter';
+Vue.component('TableFilter',TableFilter)
 new Vue({
   render: h => h(App),
   router,

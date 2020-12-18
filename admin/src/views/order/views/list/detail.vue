@@ -7,20 +7,21 @@
     <el-drawer title="订单详情" :visible.sync="currentVisible" :before-close="onClose" size='600px' :modal-append-to-body='false' :destroy-on-close='true' @open="init">
         <div class="drawer-body" v-loading="loading" >
             <BaseInfo title="基础信息" :list='list'></BaseInfo>
+            <BaseInfo title="收货信息" :list='addressInfo'></BaseInfo>
             <BaseInfo title="商品信息">
                 <TableMain ref="table" :columnItems="columnItems">
-                <template slot="thumbnail" slot-scope="scope">
-                    <img  v-if="scope.row.thumbnailImage" :src="baseUrl+scope.row.thumbnailImage.url" height="60px">
-                </template>
-                <template slot="status" slot-scope="scope">
-                    <span v-if="scope.row.status==1" class="color-green">上架</span>
-                    <span v-else class="color-gray">下架</span>
-                </template>
-                <template slot="action" slot-scope="scope">
-                    <el-button type="text" icon="el-icon-edit" @click.stop="edit(scope.row)">编辑</el-button>
-                    <el-button type="text" icon="el-icon-delete" class="color-red" @click.stop="remove(scope.row)">删除</el-button>
-                </template>
-            </TableMain>
+                    <template slot="goodPic" slot-scope="scope">
+                        <img  v-if="scope.row.goodPic" :src="baseUrl+scope.row.goodPic" height="60px">
+                    </template>
+                    <template slot="status" slot-scope="scope">
+                        <span v-if="scope.row.status==1" class="color-green">上架</span>
+                        <span v-else class="color-gray">下架</span>
+                    </template>
+                    <template slot="action" slot-scope="scope">
+                        <el-button type="text" icon="el-icon-edit" @click.stop="edit(scope.row)">编辑</el-button>
+                        <el-button type="text" icon="el-icon-delete" class="color-red" @click.stop="remove(scope.row)">删除</el-button>
+                    </template>
+                </TableMain>
             </BaseInfo>
 
             
@@ -28,6 +29,7 @@
     </el-drawer>
 </template>
 <script>
+import {mapGetters} from 'vuex';
 import merchantApi from "@/views/merchant/api";
 import BaseInfo from '@/components/BaseInfo';
 import {constant,time} from '@/filters'
@@ -49,18 +51,21 @@ export default {
             loading:false,
             list:[],
             userInfo:[],
+            addressInfo:[],
             detail:{},
             columnItems:[
-                {prop:'id',label:'ID'},
-                {prop:'name',label:'名称'},
-                {prop:'thumbnail',label:'主图'},
-                {prop:'status',label:'状态'},
-                {prop:'createdAt',label:'创建时间'},
-                {prop:'action',label:'操作',width: 180},
+                // {prop:'id',label:'ID'},
+                {prop:'goodName',label:'名称'},
+                {prop:'goodPic',label:'主图'},
+                {prop:'goodSpecName',label:'规格'},
+                {prop:'salePrice',label:'单价'},
+                {prop:'qty',label:'数量'},
+                {prop:'amount',label:'总价'},
             ],
         }
     },
     computed:{
+        ...mapGetters(['baseUrl']),
         currentVisible:{
             get(){
                 return this.visible
@@ -73,7 +78,7 @@ export default {
     methods: {
         init(){
             this.getList();
-            this.getDetail()
+            // this.getDetail()
         },
         getList() {
             
@@ -91,7 +96,14 @@ export default {
                 {title:'状态',value: status},
                 {title:'下单时间',value: time(this.data.createdAt)},
             ]
-            this.$refs.table.list = this.data.goodList;
+            this.addressInfo = [
+                {title:'收货地址',value:this.data.address},
+                {title:'收货人',value:this.data.linkMan},
+                {title:'收货人电话',value:this.data.linkPhone},
+            ]
+            setTimeout(()=>{
+                this.$refs.table.list = this.data.goodList;
+            })
         },
         getDetail(){
             const map = [

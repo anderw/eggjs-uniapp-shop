@@ -8,11 +8,11 @@
         </el-header>
         <el-main class="center-main">
             <div class="table-filter">
-                
+                <table-filter :listQuery.sync="listQuery" :filterSchema="filterSchema" @change="search"></table-filter>
             </div>
-            <TableMain ref="table" :columnItems="columnItems" :api="listApi" @row-click="onRowClick">
+            <TableMain ref="table" :columnItems="columnItems" :listQuery="listQuery" :api="listApi" @row-click="onRowClick">
                 <template slot="action" slot-scope="scope">
-                    <el-button type="text" icon="el-icon-edit" @click.stop="edit(scope.row)">编辑</el-button>
+                    <el-button type="text" icon="el-icon-tickets">详情</el-button>
                     <!-- <el-button type="text" icon="el-icon-delete" class="color-red" @click.stop="remove(scope.row)">删除</el-button> -->
                 </template>
             </TableMain>
@@ -26,6 +26,7 @@ import FormDialog from '@/components/FormDialog';
 import { deepClone } from '@/utils'
 import {mapGetters} from 'vuex'
 import {castFilter,constant} from '@/filters'
+import {constantMap} from '@/utils/constant'
 import Detail from './detail';
 export default {
     components: {Detail },
@@ -33,7 +34,10 @@ export default {
         return {
             listQuery: {
                 page: 1,
-                pageIndex: 10
+                pageSize: 10,
+                orderNo:'',
+                userName:'',
+                status:''
             },
             listApi:orderApi.order.list,
             columnItems:[
@@ -44,6 +48,11 @@ export default {
                 {prop:'status',label:'状态',filter: constant,filterParams:['OrderStatus']},
                 {prop:'createdAt',label:'创建时间'},
                 {prop:'action',label:'操作',width: 180},
+            ],
+            filterSchema:[
+                { label: "订单编号", prop: "orderNo" },
+                { label: "用户", prop: "userName" },
+                { label: "状态", prop: "status",type:'select',selectList: constantMap.OrderStatus,all:true},
             ],
             currentData: null,
             dVisible: false,
@@ -56,25 +65,11 @@ export default {
         
     },
     methods: {
-        edit(data) {
-            const query = {};
-            if(data){
-                query.id=data.id
-            }
-        },
-        submit(data) {
-            this.refresh();
+        search(){
+            this.$refs.table.query();
         },
         refresh() {
             this.$refs.table.refresh();
-        },
-        remove(data){
-        	this.$confirm('确认删除商户【'+data.name+'】吗','提示').then(res=>{
-        		goodApi.good.remove(data.id).then(res=>{
-        			this.$message({type:'success',message:'删除成功',duration: 2000});
-        			this.refresh();
-        		})
-        	}).catch(()=>{})
         },
         onRowClick(row){
             this.currentData = row;

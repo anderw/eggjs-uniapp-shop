@@ -10,13 +10,27 @@ export default class OrderService extends Service {
     * @param params - 列表查询参数
     */
     public async list(options) {
+        const { Op } = this.app.Sequelize;
         let {page = 1, pageSize = this.config.pageSize} = options
+        const where = {
+            status: options.status || '',
+            userName: options.userName?{
+                [Op.substring]:'%'+options.userName
+            }:'',
+            orderNo:options.orderNo?{
+                [Op.substring]:'%'+options.orderNo
+            }:''
+        };
+        for(const i in where){
+            if(!where[i]) delete where[i]
+        }
         let list = await this.app.model.GoodOrder.findAndCountAll({
             limit: +pageSize,
             offset: pageSize * (page-1),
             include:[
                 { model: this.app.model.GoodOrderLine,as:'goodList'}
-            ]
+            ],
+            where:where
         })
         return list;
     }

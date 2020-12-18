@@ -8,20 +8,17 @@
  * @params   <Object>listQuery: 键值为searchList的searchType
 -->
 <template>
-    <div class="table-filter" v-if="filterList.length || typeof(query.cloudType)!='undefined'">
+    <div class="table-filter" v-if="filterList.length || filterOuterList.length">
         <!--云平台-->
-        <ul class="cloud-types" v-if="typeof(query.cloudType)!='undefined'">
-            <li :class="{active:query.cloudType==''}" v-if="(typeof(listQuery.cloudType)=='object' && (typeof(listQuery.cloudType.all)==='undefined'||listQuery.cloudType.all))||typeof(listQuery.cloudType)=='string'" @click="selectCloudType('')">全部</li>
-            <li v-for="item in cloudPlatforms" :key='item.code' :class="{active:query.cloudType==item.code}" @click="selectCloudType(item.code)">{{item.name}}</li>
-        </ul>
-        <!--镜像类型-->
-        <ul class="imageOwnerAlias" v-if="typeof(query.imageOwnerAlias)!='undefined'">
-            <li v-for="item in ImageOwnerAliasList" :key='item.value' :class="{active:query.imageOwnerAlias==item.value}" @click="selectImageOwnerAlias(item.value)">{{item.title}}</li>
-        </ul>
+        <div class="table-filter-outer">
+            <div v-for="(item,index) in filterOuterList" :key="index">
+                <SearchItem :current="item" :listQuery="query" @change="onChange"></SearchItem>
+            </div>
+        </div>
         <div class="main" v-if="filterList.length">
             <div class="table-filter-item table-filter-select" v-if="showType=='mini'">
                 <div class="label" :style="{width:labelWidth+(labelWidth.indexOf('px')<=-1?'px': '')}">
-                    <el-select v-model="current" value-key="searchType">
+                    <el-select v-model="current" value-key="prop">
                         <el-option v-for="(item,index) in filterList" :label="item.label" :value="item" :key="index"></el-option>
                     </el-select>
                 </div>
@@ -32,9 +29,9 @@
                 </div>
             </div>
             <div class="table-filter-item table-filter-high" v-if="showType=='high'">
-                <el-form @submit.native.prevent="search" class="common-form" inline>
+                <el-form @submit.native.prevent="search" class="common-form" :inline="device!='mobile'">
                     <el-form-item v-for="(item,index) in filterList" :label="item.label" :label-width="item.labelWidth" :key="index">
-                        <SearchItem :current.sync="item" :listQuery="query" @change="onChange"></SearchItem>
+                        <SearchItem :current="item" :listQuery="query" @change="onChange"></SearchItem>
                     </el-form-item>
                     <el-form-item>
                         <el-button icon="el-icon-search" type="primary" class="btn-common table-filter-item table-filter-btn-search" @click="search">搜索</el-button>
@@ -58,159 +55,103 @@
     </div>
 </template>
 <script>
-import { cloudPlatform } from '@/utils/cloudPlatform';
+import {mapGetters} from 'vuex'
 import {deepClone} from '@/utils';
 import { constantMap } from '@/utils/constant';
 import { time } from '@/filters';
 import SearchItem from './SearchItem'
-import searchList from './searchList'
 export default {
+    name:'TableFilter',
     components: {SearchItem},
     props: {
-        filters: {
-            type: Array,
-            default: () => {
-                return []
-            }
-        },
         listQuery: {
             type: Object,
             default: () => {
                 return {}
             }
         },
+        filterSchema:{
+            type: Array,
+            default:()=>{
+                return []
+            }
+        },
         labelWidth: {
             type: String,
             default: '150'
         },
+        /**是否在选完后自动查询 */
         auto: {
             type: Boolean,
             default: true
         },
-        cloudTypes: {
-            type: String,
-            default: Object.keys(cloudPlatform).join(',')
-        }
-    },
-    watch:{
-        listQuery:{
-            deep: true,
-            handler(val){
-                this.initQuery();
-            }
-        }
     },
     computed: {
-        
+        ...mapGetters(['device'])
     },
     data() {
         return {
-            searchList: searchList,
-            // cloudPlatforms: Object.values(cloudPlatform).filter(item => item.status == 1),
-            cloudPlatforms: Object.values(cloudPlatform).filter(item => item.status && this.cloudTypes.indexOf(item.code) > -1),
-            ImageOwnerAliasList:constantMap.ImageOwnerAlias,
             current: {},
             /* 用于组件内部的listQuery */
             query:{},
             /*检索项*/
             filterQuery: [],
             filterList:[],
+            filterOuterList:[],
             /*daterangeModel*/
-            showType: localStorage.getItem('tableFilterType') || 'mini'
+            showType: localStorage.getItem('tableFilterType') || 'high'
         }
     },
     created() {
-        this.initQuery();
         this.init();
     },
     methods: {
         init() {
-            this.filterList = this.getFilterList()
+            this.filterSchema.map(a=>{
+                if(a.all){
+                    this.$set(this.query,a.prop,'');
+                }
+                if(typeof(a.default)!='undefined'){
+                    this.$set(this.query,a.prop,a.default);
+                }
+            })
+            this.filterList = this.filterSchema.filter(a=>!a.outer);
+            this.filterOuterList = this.filterSchema.filter(a=>a.outer)
+            // console.log(this.query,'queyrs')
             if (this.filterList.length) {
                 this.current = this.filterList[0];
                 this.packQuery()
             }
         },
-        initQuery(){
-            for(let i in this.listQuery){
-                var v = this.listQuery[i]
-                if(v && typeof v ==='object'){
-                    this.$set(this.query, i, v.value||'')
-                }else{
-                    this.$set(this.query, i, v)
-                }
-            }
-            // console.log(this.query,'query')
-        },
-        /*通过listQuery，生成一个新的筛选项集合*/
-        getFilterList() {
-            let list = deepClone(this.searchList)
-            return list.filter(item => {
-                if (['regionId', 'regionIds','regionName'].indexOf(item.searchType) > -1 && !this.query.cloudType) {
-                    return false;
-                }
-                if (['masterZoneId'].indexOf(item.searchType) > -1 && (!this.query.cloudType || !this.query.regionId)) {
-                    return false;
-                }
-                for (var i in this.query) {
-                    if (['pageIndex', 'pageSize', 'cloudType','imageOwnerAlias'].indexOf(i) <= -1 && item.searchType == i) {
-                        if(this.listQuery[i] && typeof this.listQuery[i] ==='object'){
-                            for(let l in this.listQuery[i]){
-                                if(typeof item[l] !== 'undefined'){
-                                    item[l] = this.listQuery[i][l]
-                                }
-                            }
-                        }
-                        return true
-                    }
-                }
-                return false;
-            });
-        },
-        setQueryValue(key,value){
-            if(typeof this.listQuery[key] ==='object'){
-                this.$set(this.listQuery[key], 'value', value)
-            }else{
-                this.$set(this.listQuery, key, value)
-            }
-        },
+
         packQuery(){
-            var searchItem = this.searchList.find(item => item.searchType == this.current.searchType);
-            var filterItem = this.filterQuery.find(item => item.searchType == this.current.searchType);
-            var value = this.query[this.current.searchType]
-            if (typeof filterItem !== 'undefined') {
-                /*当输入值为空时*/
-                if (value === ''|| (typeof value==='array' && !value.length)) {
-                    for (var i = 0; i < this.filterQuery.length; i++) {
-                        if (this.filterQuery[i].searchType === this.current.searchType) {
-                            this.filterQuery.splice(i, 1); break;
-                        }
+            var filterItem = this.filterQuery.find(item => item.prop == this.current.prop);
+            var value = this.query[this.current.prop]
+        
+            /*当输入值为空时*/
+            if (value === '' || value===null ||value===undefined|| (value instanceof Array && !value.length)) {
+                for (var i = 0; i < this.filterQuery.length; i++) {
+                    if (this.filterQuery[i].prop === this.current.prop) {
+                        this.filterQuery.splice(i, 1); break;
                     }
-                } else {
-                    this.$set(filterItem, 'searchValue', value)
                 }
             } else {
-                if(value==='' || (typeof value==='array' && !value.length)){
-                    return;
+                if (typeof filterItem !== 'undefined') {
+                    this.$set(filterItem, 'searchValue', value);
+                }else{
+                    var searchItem = deepClone(this.current);
+                    this.$set(searchItem, 'searchValue', value)
+                    this.filterQuery.push(searchItem);
                 }
-                this.$set(searchItem, 'searchValue', value)
-                this.filterQuery.push(searchItem);
             }
         },
         search() {
             this.packQuery()
             this.change();
         },
-        onRegionChange() {
-            for (var i = 0; i < this.filterQuery.length; i++) {
-                if (this.filterQuery[i].searchType == 'masterZoneId') {
-                    this.filterQuery.splice(i, 1);
-                }
-            }
-        },
         /*获取检索项的key值*/
         getLabelName(data) {
-            var current = this.filterList.find(item => item.searchType == data.searchType);
+            var current = this.filterList.find(item => item.prop == data.prop);
             if (current && current.selectList && current.selectList.length) {
                 var curValues = (data.searchValue + '').split(',');
                 var result = [];
@@ -227,10 +168,10 @@ export default {
                 }
 
             }
-            if (['daterange','monthrange','datetimerange'].indexOf(data.type)>-1) {
+            if (data.searchValue instanceof Array) {
                 return data.searchValue.join(' - ')
             }
-			if(['cloudCreateTime','createTime','openTime'].indexOf(data.searchType)>-1){	
+			if(['cloudCreateTime','createTime','openTime'].indexOf(data.prop)>-1){	
 				return time(data.searchValue,data.format)
 			}
             return data.searchValue
@@ -252,47 +193,14 @@ export default {
 			this.filterQuery = list
             this.onChange();
         },
-        change() {//console.log(JSON.stringify(this.filterList),'filterList1')
-            for(let i in this.listQuery){
-                this.setQueryValue(i,this.query[i]);
+        
+        change() {
+            for(let i in this.query){
+                this.$set(this.listQuery, i, this.query[i])
             }
-            // console.log(JSON.stringify(this.filterList),'filterList1')
-            this.$emit('update:listQuery', this.listQuery);//console.log(this.filterList,'filterList');return
+            this.$emit('update:listQuery', this.listQuery);
             this.$emit('change');
         },
-        selectCloudType(code) {
-            this.query.cloudType = code;
-            if (this.query.regionId || this.query.regionIds) {
-                for (var i = 0; i < this.filterQuery.length; i++) {
-                    if (this.filterQuery[i].searchType == 'regionId') {
-                        this.filterQuery.splice(i, 1);
-                    }
-                    if (this.filterQuery[i].searchType == 'regionIds') {
-                        this.filterQuery.splice(i, 1);
-                    }
-
-                }
-
-                this.query.regionId && (this.query.regionId = "");
-                this.query.regionIds && (this.query.regionIds = "");
-            }
-            if (this.filterQuery.length) {
-                for (var j = 0; j < this.filterQuery.length; j++) {
-                    if (this.filterQuery[j].searchType == 'masterZoneId') {
-                        this.filterQuery.splice(j, 1);
-                    }
-                }
-                this.query.masterZoneId && (this.query.masterZoneId = "");
-            }
-            this.init();
-            this.change();
-        },
-        selectImageOwnerAlias(value){
-            this.query.imageOwnerAlias = value;
-            this.init();
-            this.change();
-        },
-	
         onChange() {
             this.auto && this.search();
         },
@@ -348,34 +256,49 @@ export default {
             // width: 300px;
         }
     }
+    .filter-radio-group{
+
+        .el-radio-button{
+            margin-right: 10px;
+            
+        }
+        .el-radio-button__inner{
+            border-radius: 30px;
+            padding: 7px 20px;
+        }
+	}
+
     .table-filter-item.table-filter-high{
         float: left;
         margin-bottom: 0;
-        /deep/{
-            .el-input,.el-select{
-                width: 200px!important;
-            }
-            .el-form-item{
-                margin-bottom: 8px;
-            }
-            .el-form-item__label{
-                min-width: 100px;
-                background: #fafafa;
-                border: 1px solid #e7e7e7;
+        .el-input,.el-select{
+            width: 200px!important;
+        }
+        .el-form-item{
+            margin-bottom: 8px;
+        }
+        .el-form-item__label{
+            min-width: 100px;
+            background: #fafafa;
+            border: 1px solid #e7e7e7;
+            height: 32px;
+            line-height: 32px;
+            border-right:0;
+            border-radius: 3px 0 0 3px;
+        }
+        .el-input__inner{
+            border-radius: 0 3px 3px 0;
+        }
+        .el-button{
+            margin-bottom: 0;
+        }
+        .el-dropdown{
+            .link{
                 height: 32px;
-                line-height: 32px;
-                border-right:0;
-            }
-            .el-button{
-                margin-bottom: 0;
-            }
-            .el-dropdown{
-                .link{
-                    height: 32px;
-                    border: 1px solid #e7e7e7;
-                }
+                border: 1px solid #e7e7e7;
             }
         }
+    
     }
     .table-filter-item {
         margin-bottom: 10px;
@@ -413,7 +336,7 @@ export default {
                 border-radius: 2px;
                 background: $gray-5;
                 border: 1px solid $gray-3;
-                height: 20px;
+                // height: 20px;
                 line-height: 19px;
                 font-size: 12px;
                 padding: 0 5px 0 10px;
@@ -437,63 +360,36 @@ export default {
             }
         }
     }
-    .cloud-types {
-        margin-bottom: 10px;
-        text-align: left;
-        li {
-            display: inline-block;
-            padding: 0 25px;
-            height: 28px;
-            line-height: 28px;
-            border: 1px solid $gray-3;
-            border-radius: 30px;
-            margin: 0 5px;
-            cursor: pointer;
-
-            &.active {
-                border: 1px solid $red-select;
-                background-color: $red-select;
-                color: #fff;
-            }
-
-            &:hover {
-                border-color: $red-select;
-            }
-            &[disabled],
-            &[disabled]:hover {
-                cursor: not-allowed;
-                color: $gray-2;
-                border-color: $gray-3;
+}
+@media (max-width: 600px){
+    .table-filter{
+        .table-filter-item{
+            float:none!important;
+            .el-form-item{
+                .el-form-item__label{
+                    float:left;
+                }
+                .el-form-item__label + .el-form-item__content{
+                    margin-left: 100px;
+                }
+                .el-input,.el-select{
+                    width:100%!important;
+                }
+                &:after{
+                    content:"";display: block;clear: both;
+                }
             }
         }
-    }
-    .imageOwnerAlias{
-        margin-bottom: 10px;
-        text-align: left;
-        li {
-            display: inline-block;
-            padding: 0 25px;
-            height: 28px;
-            line-height: 28px;
-            border: 1px solid $gray-3;
-            border-radius: 30px;
-            margin: 0 5px;
-            cursor: pointer;
-
-            &.active {
-                border: 1px solid $red-select;
-                background-color: $red-select;
-                color: #fff;
+        .table-filter-select{
+            .label{
+                float:left;
             }
-
-            &:hover {
-                border-color: $red-select;
-            }
-            &[disabled],
-            &[disabled]:hover {
-                cursor: not-allowed;
-                color: $gray-2;
-                border-color: $gray-3;
+            .det{
+                display: block;
+                margin-left: 150px;
+                .el-input__inner{
+                    width:100%;
+                }
             }
         }
     }
