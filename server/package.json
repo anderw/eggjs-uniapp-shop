@@ -1,5 +1,5 @@
 {
-  "name": "eggjs-admin",
+  "name": "eggjs-uniapp-shop",
   "version": "1.0.0",
   "description": "",
   "private": true,
@@ -8,8 +8,8 @@
     "declarations": true
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=egg-server-eggjs-admin",
-    "stop": "egg-scripts stop --title=egg-server-eggjs-admin",
+    "start": "egg-scripts start --daemon --title=egg-server-eggjs-uniapp-shop",
+    "stop": "egg-scripts stop --title=egg-server-eggjs-uniapp-shop",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",
     "test-local": "egg-bin test",

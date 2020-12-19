@@ -1,4 +1,4 @@
-# eggjs-admin
+# eggjs-uniapp-shop
 ### 基于egg.js+jwt+mysql编写的开箱即用的权限管理后台
 ### 后台: egg.js
 ### 数据库: mysql
