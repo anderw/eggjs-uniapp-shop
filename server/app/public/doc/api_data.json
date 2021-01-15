@@ -1,0 +1,226 @@
+[
+  {
+    "type": "post",
+    "url": "/api/goodCategory/tree",
+    "title": "获取商品分类列表",
+    "name": "goodCategory",
+    "group": "商品管理",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "merchantId",
+            "description": "<p>商城Id（必传）</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求示例:",
+          "content": "{\n     \"merchantId\":\"1\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "成功返回:",
+          "content": "{\n       \"status\": 200,\n       \"result\": [\n           {\n               \"id\": 4,\n               \"name\": \"手机数码\",\n               \"description\": \"\",\n               \"parentId\": null,\n               \"merchantId\": 1,\n               \"image\": null,\n               \"children\": [\n                   {\n                       \"id\": 8,\n                       \"name\": \"手机通讯\",\n                       \"description\": \"\",\n                       \"parentId\": 4,\n                       \"merchantId\": 1,\n                       \"image\": null,\n                       \"children\": [\n                           {\n                               \"id\": 18,\n                               \"name\": \"全面屏手机\",\n                               \"description\": null,\n                               \"parentId\": 8,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 49,\n                                   \"url\": \"/public/uploads/2020/12/13/1607849841448769.5168552010039.jpg\"\n                               }\n                           },\n                           {\n                               \"id\": 19,\n                               \"name\": \"游戏手机\",\n                               \"description\": \"\",\n                               \"parentId\": 8,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 50,\n                                   \"url\": \"/public/uploads/2020/12/13/1607850096439700.148397123594.jpg\"\n                               }\n                           },\n                           {\n                               \"id\": 20,\n                               \"name\": \"老人机\",\n                               \"description\": \"\",\n                               \"parentId\": 8,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 51,\n                                   \"url\": \"/public/uploads/2020/12/13/1607850114481328.5455870651011.jpg\"\n                               }\n                           },\n                           {\n                               \"id\": 21,\n                               \"name\": \"拍照手机\",\n                               \"description\": \"\",\n                               \"parentId\": 8,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 52,\n                                   \"url\": \"/public/uploads/2020/12/13/160785014201975.71720530766002.jpg\"\n                               }\n                           },\n                           {\n                               \"id\": 22,\n                               \"name\": \"女性手机\",\n                               \"description\": \"\",\n                               \"parentId\": 8,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 53,\n                                   \"url\": \"/public/uploads/2020/12/13/1607850154300472.14451416214166.jpg\"\n                               }\n                           }\n                       ]\n                   },\n                   {\n                       \"id\": 9,\n                       \"name\": \"运营商\",\n                       \"description\": \"\",\n                       \"parentId\": 4,\n                       \"merchantId\": 1,\n                       \"image\": null,\n                       \"children\": [\n                           {\n                               \"id\": 23,\n                               \"name\": \"合约机\",\n                               \"description\": \"\",\n                               \"parentId\": 9,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 54,\n                                   \"url\": \"/public/uploads/2020/12/13/1607850178665562.4676813632846.jpg\"\n                               }\n                           },\n                           {\n                               \"id\": 24,\n                               \"name\": \"选好卡\",\n                               \"description\": \"\",\n                               \"parentId\": 9,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 55,\n                                   \"url\": \"/public/uploads/2020/12/13/1607850195584665.740414198998.jpg\"\n                               }\n                           },\n                           {\n                               \"id\": 25,\n                               \"name\": \"办套餐\",\n                               \"description\": \"\",\n                               \"parentId\": 9,\n                               \"merchantId\": 1,\n                               \"image\": {\n                                   \"id\": 56,\n                                   \"url\": \"/public/uploads/2020/12/13/160785021844525.9792968692083.jpg\"\n                               }\n                           }\n                       ]\n                   }\n               ]\n           }\n       ]\n   }",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/controller/good/category.ts",
+    "groupTitle": "商品管理"
+  },
+  {
+    "type": "post",
+    "url": "/api/good",
+    "title": "商品分页列表",
+    "name": "goodList",
+    "group": "商品管理",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "page",
+            "description": "<p>页码</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "pageSize",
+            "description": "<p>分页数量</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "merchantId",
+            "description": "<p>商铺Id(必传)</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "categoryId",
+            "description": "<p>分类Id</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "status",
+            "description": "<p>状态（1:上架，2:下架）</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "priceOrder",
+            "description": "<p>按价格排序，1为升序，2为降序</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "salesOrder",
+            "description": "<p>按销量排序，1为降序，2为升序序</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "请求示例:",
+          "content": "{\n     \"page\": 1,\n     \"pageSize\": 20,\n     \"merchantId\": 1,\n     \"categoryId\": 1,\n     \"priceOrder\": 1，\n     \"status\": 1\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "成功返回:",
+          "content": "{\n        \"status\": 200,\n        \"result\": {\n            \"count\": 17,\n            \"rows\": [\n                {\n                    \"id\": 16,\n                    \"name\": \"童装套装\",//商品名称\n                    \"description\": \"\",//商品简介\n                    \"content\": \"\",//商品详情，富文本\n                    \"thumbnail\": 75,\n                    \"categoryId\": 39,\n                    \"mechantId\": 1,\n                    \"salePrice\": \"150.00\",//售价\n                    \"marketPrice\": \"89.00\",//原价\n                    \"sales\": 0,//销量\n                    \"status\": 1,//状态：1：上架，2：下架\n                    \"createdAt\": \"2020-12-15 20:46:41\",\n                    \"updatedAt\": \"2020-12-15 20:46:41\",\n                    \"thumbnailImage\": {//主图\n                        \"id\": 75,\n                        \"format\": \"image/png\",\n                        \"url\": \"/public/uploads/2020/12/15/1608036369981975.2750883626092.png\",\n                        \"path\": \"app\\\\public\\\\uploads\\\\2020\\\\12\\\\15\\\\1608036369981975.2750883626092.png\",\n                        \"size\": 113592,\n                        \"name\": \"1608036369981975.2750883626092.png\",\n                        \"type\": \"image\",\n                        \"creator\": null,\n                        \"createdAt\": \"2020-12-15 20:46:09\",\n                        \"updatedAt\": \"2020-12-15 20:46:09\"\n                    },\n                    \"apecs\": [\n                        {\n                            \"id\": 6,\n                            \"name\": \"黑色\",//规格名称\n                            \"description\": null,\n                            \"pic\": null,\n                            \"salePrice\": \"150.00\",//规格售价\n                            \"marketPrice\": \"89.00\",//规格原价\n                            \"stock\": 999,//库存\n                            \"sales\": 0,//销量\n                            \"goodId\": 16,\n                            \"mechantId\": 1,\n                            \"createdAt\": \"2020-12-15 20:46:41\",\n                            \"updatedAt\": \"2020-12-15 20:46:41\"\n                        },\n                        {\n                            \"id\": 7,\n                            \"name\": \"白色\",\n                            \"description\": null,\n                            \"pic\": null,\n                            \"salePrice\": \"160.00\",\n                            \"marketPrice\": \"99.00\",\n                            \"stock\": 800,\n                            \"sales\": 0,\n                            \"goodId\": 16,\n                            \"mechantId\": 1,\n                            \"createdAt\": \"2020-12-15 20:46:41\",\n                            \"updatedAt\": \"2020-12-15 20:46:41\"\n                        }\n                    ]\n                }\n            ]\n        }\n    }",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/controller/good/home.ts",
+    "groupTitle": "商品管理"
+  },
+  {
+    "type": "get",
+    "url": "/api/user",
+    "title": "用户分页列表",
+    "name": "GetUser",
+    "group": "用户管理",
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "firstname",
+            "description": "<p>Firstname of the User.</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "lastname",
+            "description": "<p>Lastname of the User.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "成功返回:",
+          "content": "HTTP/1.1 200 OK\n{\n           \"status\": 200,\n           \"result\": {\n               \"count\": 2,\n               \"rows\": [\n                   {\n                       \"id\": 1,\n                       \"username\": \"admin\",\n                       \"email\": null,\n                       \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n                       \"name\": \"管理员1\",\n                       \"sex\": 2,\n                       \"avatarId\": 34,\n                       \"type\": 1,\n                       \"phone\": null,\n                       \"roleId\": 1,\n                       \"status\": 1,\n                       \"lastLoginTime\": null,\n                       \"unionid\": null,\n                       \"openid\": null,\n                       \"createdAt\": \"2020-08-23 08:10:20\",\n                       \"updatedAt\": \"2020-12-12 14:30:08\",\n                       \"role\": {\n                           \"id\": 1,\n                           \"name\": \"管理员\",\n                           \"describe\": null,\n                           \"status\": 1,\n                           \"createdAt\": \"2020-08-23 13:55:19\",\n                           \"updatedAt\": \"2020-11-23 11:14:54\"\n                       }\n                   },\n               ]\n           }\n       }",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/controller/system/user.ts",
+    "groupTitle": "用户管理"
+  },
+  {
+    "type": "post",
+    "url": "/api/user/login",
+    "title": "登录",
+    "name": "login",
+    "group": "用户管理",
+    "parameter": {
+      "examples": [
+        {
+          "title": "请求示例:",
+          "content": "{\n     \"username\":\"admin\",\n     \"password\":\"123456\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/controller/system/user.ts",
+    "groupTitle": "用户管理"
+  },
+  {
+    "type": "get",
+    "url": "/api/user/logout",
+    "title": "退出登录",
+    "name": "logout",
+    "group": "用户管理",
+    "version": "0.0.0",
+    "filename": "app/controller/system/user.ts",
+    "groupTitle": "用户管理"
+  },
+  {
+    "type": "get",
+    "url": "/api/user/info",
+    "title": "获取用户信息",
+    "name": "userInfo",
+    "group": "用户管理",
+    "success": {
+      "examples": [
+        {
+          "title": "成功返回:",
+          "content": "{\n        \"status\": 200,\n        \"result\": {\n            \"id\": 1,\n            \"username\": \"admin\",\n            \"email\": null,\n            \"password\": \"e10adc3949ba59abbe56e057f20f883e\",\n            \"name\": \"管理员1\",\n            \"sex\": 2,\n            \"avatarId\": 34,\n            \"type\": 1,\n            \"phone\": null,\n            \"roleId\": 1,\n            \"status\": 1,\n            \"lastLoginTime\": null,\n            \"unionid\": null,\n            \"openid\": null,\n            \"createdAt\": \"2020-08-23 08:10:20\",\n            \"updatedAt\": \"2020-12-12 14:30:08\",\n            \"role\": {\n                \"id\": 1,\n                \"name\": \"管理员\",\n                \"describe\": null,\n                \"status\": 1,\n                \"createdAt\": \"2020-08-23 13:55:19\",\n                \"updatedAt\": \"2020-11-23 11:14:54\"\n            },\n            \"avatar\": {\n                \"id\": 34,\n                \"format\": \"image/png\",\n                \"url\": \"/public/uploads/2020/12/12/1607754606300671.2143153498937.png\",\n                \"path\": \"app\\\\public\\\\uploads\\\\2020\\\\12\\\\12\\\\1607754606300671.2143153498937.png\",\n                \"size\": 113592,\n                \"name\": \"1607754606300671.2143153498937.png\",\n                \"type\": \"image\",\n                \"creator\": null,\n                \"createdAt\": \"2020-12-12 14:30:06\",\n                \"updatedAt\": \"2020-12-12 14:30:06\"\n            },\n            \"permissions\": [\n                {\n                    \"id\": 1,\n                    \"roleId\": 1,\n                    \"permissionId\": \"user\",\n                    \"actions\": \"query,add\",\n                    \"createdAt\": \"2020-08-27 10:27:31\",\n                    \"updatedAt\": \"2020-08-27 10:27:31\"\n                }\n            ]\n        }\n    }",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/controller/system/user.ts",
+    "groupTitle": "用户管理"
+  },
+  {
+    "type": "post",
+    "url": "/api/user/update",
+    "title": "修改用户信息",
+    "name": "userUpdate",
+    "group": "用户管理",
+    "parameter": {
+      "examples": [
+        {
+          "title": "请求示例",
+          "content": "{\n \"name\": \"Eve\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "app/controller/system/user.ts",
+    "groupTitle": "用户管理"
+  }
+]

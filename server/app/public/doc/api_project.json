@@ -1,0 +1,16 @@
+{
+  "name": "tinyshop商城",
+  "version": "0.1.0",
+  "description": "tinyshop商城api文档",
+  "title": "tinyshop商城API文档",
+  "url": "http://mall.tucy.top",
+  "sampleUrl": false,
+  "defaultVersion": "0.0.0",
+  "apidoc": "0.3.0",
+  "generator": {
+    "name": "apidoc",
+    "time": "2021-01-15T13:43:52.945Z",
+    "url": "https://apidocjs.com",
+    "version": "0.26.0"
+  }
+}
